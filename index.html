@@ -43,19 +43,15 @@
       justify-content:center;
       align-items:flex-start; /* default: top (good for checklist scrolling) */
     }
-    body.landing-center{
-      align-items:center; /* landing page centered vertically */
-    }
+    body.landing-center{ align-items:center; }
 
     .wrap{
       width: min(980px, 100%);
       padding: 26px 18px 64px;
     }
-    body.landing-center .wrap{
-      padding: 18px 18px;
-    }
+    body.landing-center .wrap{ padding: 18px 18px; }
 
-    /* Simple top brand (Mode bar removed) */
+    /* Simple top brand */
     .top{
       display:flex;
       align-items:center;
@@ -305,6 +301,7 @@
       place-items:center;
       margin-top: 2px;
       flex: 0 0 auto;
+      cursor: pointer;
     }
     .item.completed .check{
       border-color: rgba(22,163,74,.35);
@@ -313,7 +310,7 @@
     .check svg{ opacity:0; }
     .item.completed .check svg{ opacity:1; }
 
-    .itemMain{ flex: 1 1 auto; }
+    .itemMain{ flex: 1 1 auto; cursor: pointer; }
     .itemText{
       margin: 0;
       font-size: 14px;
@@ -331,6 +328,8 @@
       display:flex;
       gap: 8px;
       flex: 0 0 auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     .mini{
       cursor:pointer;
@@ -358,6 +357,41 @@
     .mini.remove:hover{
       border-color: rgba(225,29,72,.30);
       background: rgba(225,29,72,.10);
+    }
+    .mini.photo{
+      border-color: rgba(37,99,235,.18);
+      background: rgba(37,99,235,.08);
+    }
+    .mini.photo:hover{
+      border-color: rgba(37,99,235,.28);
+      background: rgba(37,99,235,.10);
+    }
+    .mini.removePhoto{
+      border-color: rgba(225,29,72,.18);
+      background: rgba(225,29,72,.08);
+    }
+    .mini.removePhoto:hover{
+      border-color: rgba(225,29,72,.30);
+      background: rgba(225,29,72,.10);
+    }
+
+    /* Photos */
+    .photoRow{
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .thumb{
+      width: 84px;
+      height: 84px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(2,6,23,.03);
+      box-shadow: 0 10px 18px rgba(2,6,23,.06);
+      cursor: pointer;
     }
 
     .addBox{
@@ -403,6 +437,56 @@
       font-size: 12px;
     }
     .hide{ display:none !important; }
+
+    /* Modal preview */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .modalOverlay.open{ display:flex; }
+
+    .modalCard{
+      width: min(960px, 100%);
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(15,23,42,.14);
+      border-radius: 18px;
+      box-shadow: 0 24px 80px rgba(2,6,23,.22);
+      overflow: hidden;
+    }
+    .modalTop{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+    }
+    .modalTitle{
+      font-size: 13px;
+      color: rgba(15,23,42,.70);
+      margin: 0;
+    }
+    .modalClose{
+      cursor:pointer;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.90);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .modalImg{
+      width: 100%;
+      max-height: 78vh;
+      object-fit: contain;
+      background: rgba(2,6,23,.03);
+      display:block;
+    }
   </style>
 </head>
 
@@ -437,7 +521,7 @@
 
         <button class="companyBtn" data-company="bluestar">
           <div>
-            <p class="companyName">Bluestar</p>
+            <p class="companyName">Blue star</p>
             <p class="companyMeta">Completion list</p>
           </div>
         </button>
@@ -450,7 +534,7 @@
         <div class="toolbar">
           <div class="titleBlock">
             <h2 id="companyTitle">Company Checklist</h2>
-            <p id="companySub">Mark items complete or not complete. Add/remove items as needed.</p>
+            <p id="companySub">Mark items complete or not complete. Add/remove items and photos as needed.</p>
           </div>
 
           <div class="btnRow">
@@ -479,18 +563,33 @@
         </div>
 
         <div class="footerNote">
-          Tip: click the checkbox area to toggle <span class="kbd">Complete</span>/<span class="kbd">Not Completed</span>.
-          This saves locally (no submissions).
+          Photos are saved <strong>locally on this device</strong> only (no submissions).
+          Click a thumbnail to view full-size. Press <span class="kbd">Esc</span> to close.
         </div>
       </div>
     </section>
   </div>
 
+  <!-- Photo preview modal -->
+  <div id="photoModal" class="modalOverlay" role="dialog" aria-modal="true">
+    <div class="modalCard">
+      <div class="modalTop">
+        <p class="modalTitle">Photo preview</p>
+        <button id="photoModalClose" class="modalClose">Close</button>
+      </div>
+      <img id="photoModalImg" class="modalImg" alt="Photo preview" />
+    </div>
+  </div>
+
   <script>
+    /***********************
+     * DEFAULT CHECKLISTS
+     ***********************/
     const DEFAULTS = {
       smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
         "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
         "Patch all tie-holes, form-tie cone holes, chamfer voids; grind off fins; ensure uniform finish.",
+        "Verify reshoring durations satisfied (retain pour/strip date logs).",
         "Repair honeycombs, voids, blowouts with approved materials; finish to match adjacent concrete.",
         "Address surface defects (bugholes, fins, small spalls); restore sharp arrises at slab edges/openings.",
         "Treat cold joints as directed; verify no open cracks at joints.",
@@ -505,7 +604,9 @@
         "Drains/RWL openings formed correctly; no accidental cores.",
         "Install sealant at slab edges and joints; penetration collars complete.",
         "Remove temporary rails, toe boards, netting; patch anchor holes.",
-        "Remove curing compounds; clean all structural surfaces."
+        "Verify TOS/TOB elevations; provide as-built survey.",
+        "Remove curing compounds; clean all structural surfaces.",
+        "Compile concrete test reports; close NCRs; deliver as-builts."
       ]},
       spi: { name: "SPI", subtitle: "Completion Checklist", items: [
         "Remove temporary decking sheets, erection angles/kickers, safety tabs.",
@@ -518,13 +619,18 @@
         "Complete and clean field welds; apply touch-up coatings.",
         "Leave undersides/deck soffits free of debris and protrusions."
       ]},
-      bluestar: { name: "Bluestar", subtitle: "Completion Checklist", items: [
+      bluestar: { name: "Blue star", subtitle: "Completion Checklist", items: [
         "Verify all lap splices, hooks, and dowels remain intact after remedial work.",
         "Protect any rebar exposed during patching; re-encase per engineer’s direction.",
-        "Ensure anchor holes near reinforcement are epoxy-filled or grouted."
+        "Ensure anchor holes near reinforcement are epoxy-filled or grouted.",
+        "Provide final reinforcement inspection sign-off.",
+        "Submit photo documentation of congestion areas and critical details."
       ]}
     };
 
+    /***********************
+     * STATE + ELEMENTS
+     ***********************/
     const KEY_PREFIX = "lightspeed_checklist_v1:";
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
@@ -579,6 +685,96 @@
       };
     }
 
+    /***********************
+     * PHOTO STORAGE (IndexedDB)
+     * Option A: local per device
+     ***********************/
+    const DB_NAME = "lightspeed_photos_db";
+    const DB_STORE = "photos";
+
+    function openPhotoDB(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(DB_STORE)){
+            db.createObjectStore(DB_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function setPhoto(key, dataUrl){
+      const db = await openPhotoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, "readwrite");
+        tx.objectStore(DB_STORE).put(dataUrl, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getPhoto(key){
+      const db = await openPhotoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, "readonly");
+        const req = tx.objectStore(DB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function deletePhoto(key){
+      const db = await openPhotoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, "readwrite");
+        tx.objectStore(DB_STORE).delete(key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function photoKey(companyId, itemId){
+      return `photo:${companyId}:${itemId}`;
+    }
+
+    function fileToDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /***********************
+     * MODAL PREVIEW
+     ***********************/
+    const photoModal = document.getElementById("photoModal");
+    const photoModalImg = document.getElementById("photoModalImg");
+    const photoModalClose = document.getElementById("photoModalClose");
+
+    function openPhotoModal(src){
+      photoModalImg.src = src;
+      photoModal.classList.add("open");
+    }
+    function closePhotoModal(){
+      photoModal.classList.remove("open");
+      photoModalImg.src = "";
+    }
+    photoModalClose.addEventListener("click", closePhotoModal);
+    photoModal.addEventListener("click", (e) => {
+      if (e.target === photoModal) closePhotoModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closePhotoModal();
+    });
+
+    /***********************
+     * ROUTING
+     ***********************/
     function goHome(){
       window.location.hash = "";
       activeCompanyId = null;
@@ -619,11 +815,15 @@
     }
     window.addEventListener("hashchange", onHashChange);
 
-    function render(){
+    /***********************
+     * RENDER
+     ***********************/
+    async function render(){
       if (!activeState) return;
 
       listEl.innerHTML = "";
-      activeState.items.forEach(item => {
+
+      for (const item of activeState.items){
         const row = document.createElement("div");
         row.className = "item" + (item.done ? " completed" : "");
 
@@ -641,8 +841,26 @@
         const p = document.createElement("p");
         p.className = "itemText";
         p.textContent = item.text;
-
         main.appendChild(p);
+
+        // Photo area (thumbnail(s))
+        const photoRow = document.createElement("div");
+        photoRow.className = "photoRow";
+        main.appendChild(photoRow);
+
+        // Load saved photo (if exists)
+        const saved = await getPhoto(photoKey(activeCompanyId, item.id));
+        if (saved){
+          const img = document.createElement("img");
+          img.className = "thumb";
+          img.src = saved;
+          img.alt = "Attached photo";
+          img.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openPhotoModal(img.src);
+          });
+          photoRow.appendChild(img);
+        }
 
         const actions = document.createElement("div");
         actions.className = "itemActions";
@@ -650,17 +868,71 @@
         const toggleBtn = document.createElement("button");
         toggleBtn.className = "mini";
         toggleBtn.textContent = item.done ? "Mark not completed" : "Mark completed";
-        toggleBtn.addEventListener("click", () => toggleItem(item.id));
+        toggleBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleItem(item.id); });
+
+        const photoBtn = document.createElement("button");
+        photoBtn.className = "mini photo";
+        photoBtn.textContent = "📷 Add photo";
+
+        const removePhotoBtn = document.createElement("button");
+        removePhotoBtn.className = "mini removePhoto";
+        removePhotoBtn.textContent = "Remove photo";
+        removePhotoBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          await deletePhoto(photoKey(activeCompanyId, item.id));
+          await render();
+        });
 
         const removeBtn = document.createElement("button");
         removeBtn.className = "mini remove";
         removeBtn.textContent = "Remove";
-        removeBtn.addEventListener("click", () => removeItem(item.id));
+        removeBtn.addEventListener("click", (e) => { e.stopPropagation(); removeItem(item.id); });
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.capture = "environment"; // mobile-friendly (rear camera where supported)
+        fileInput.style.display = "none";
+
+        photoBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+
+        fileInput.addEventListener("change", async () => {
+          const file = fileInput.files?.[0];
+          if (!file) return;
+
+          // ✅ immediate preview (instant)
+          const tempUrl = URL.createObjectURL(file);
+          let img = photoRow.querySelector("img.thumb");
+          if (!img){
+            img = document.createElement("img");
+            img.className = "thumb";
+            img.alt = "Attached photo";
+            img.addEventListener("click", (e) => {
+              e.stopPropagation();
+              openPhotoModal(img.src);
+            });
+            photoRow.appendChild(img);
+          }
+          img.src = tempUrl;
+
+          // Save permanently (local device)
+          const dataUrl = await fileToDataUrl(file);
+          await setPhoto(photoKey(activeCompanyId, item.id), dataUrl);
+
+          URL.revokeObjectURL(tempUrl);
+          fileInput.value = "";
+        });
 
         actions.appendChild(toggleBtn);
+        actions.appendChild(photoBtn);
+        actions.appendChild(removePhotoBtn);
         actions.appendChild(removeBtn);
+        actions.appendChild(fileInput);
 
-        check.addEventListener("click", () => toggleItem(item.id));
+        check.addEventListener("click", (e) => { e.stopPropagation(); toggleItem(item.id); });
         main.addEventListener("click", () => toggleItem(item.id));
 
         row.appendChild(check);
@@ -668,7 +940,7 @@
         row.appendChild(actions);
 
         listEl.appendChild(row);
-      });
+      }
 
       updateProgress();
     }
@@ -683,6 +955,9 @@
       progressPct.textContent = `${pct}% complete`;
     }
 
+    /***********************
+     * ACTIONS
+     ***********************/
     function toggleItem(id){
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
@@ -694,6 +969,10 @@
     function removeItem(id){
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
+
+      // remove photo too
+      deletePhoto(photoKey(activeCompanyId, id)).catch(() => {});
+
       activeState.items.splice(idx, 1);
       saveCompanyState(activeCompanyId, activeState);
       render();
@@ -725,11 +1004,18 @@
     }
 
     function resetAll(){
-      activeState = makeDefaultState(activeCompanyId);
-      saveCompanyState(activeCompanyId, activeState);
-      render();
+      // also clear photos for all items in this company
+      Promise.all(activeState.items.map(it => deletePhoto(photoKey(activeCompanyId, it.id)).catch(() => {})))
+        .finally(() => {
+          activeState = makeDefaultState(activeCompanyId);
+          saveCompanyState(activeCompanyId, activeState);
+          render();
+        });
     }
 
+    /***********************
+     * EVENTS
+     ***********************/
     document.querySelectorAll(".companyBtn").forEach(btn => {
       btn.addEventListener("click", () => {
         const companyId = btn.getAttribute("data-company");
@@ -756,6 +1042,7 @@
       }
     });
 
+    // Initial route
     onHashChange();
   </script>
 </body>
