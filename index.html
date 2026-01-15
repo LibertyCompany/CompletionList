@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Lightspeed Project Completion List</title>
+
+  <!-- PDF Export Libraries (client-side, works on GitHub Pages) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
   <style>
     :root{
       --bg0:#f8fafc;
@@ -487,6 +492,45 @@
       background: rgba(2,6,23,.03);
       display:block;
     }
+
+    /* Offscreen PDF render container */
+    .pdfSandbox{
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 980px;
+      background: #ffffff;
+      color: #0f172a;
+      padding: 18px;
+      z-index: -1;
+    }
+    .pdfHeader{
+      text-align: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+    }
+    .pdfHeader h1{
+      font-size: 20px;
+      margin: 0 0 6px 0;
+      letter-spacing: -.2px;
+    }
+    .pdfHeader p{
+      margin: 0;
+      font-size: 12px;
+      color: rgba(15,23,42,.70);
+    }
+    .pdfList .itemActions,
+    .pdfList .addBox,
+    .pdfList #pdfTip,
+    .pdfList .btnRow,
+    .pdfList .top,
+    .pdfList input,
+    .pdfList button{
+      display: none !important;
+    }
+    .pdfList .itemMain{ cursor: default; }
+    .pdfList .check{ cursor: default; }
   </style>
 </head>
 
@@ -530,7 +574,7 @@
 
     <!-- CHECKLIST VIEW -->
     <section id="checklistView" class="card hide" style="margin-top:18px;">
-      <div class="cardInner">
+      <div class="cardInner" id="checklistInner">
         <div class="toolbar">
           <div class="titleBlock">
             <h2 id="companyTitle">Company Checklist</h2>
@@ -539,6 +583,7 @@
 
           <div class="btnRow">
             <button class="btn" id="backBtn">← Back</button>
+            <button class="btn good" id="downloadPdfBtn">⬇ Download PDF</button>
             <button class="btn good" id="markAllBtn">✓ Mark all complete</button>
             <button class="btn" id="resetChecksBtn">↺ Reset checks</button>
             <button class="btn danger" id="resetAllBtn">🗑 Reset checklist</button>
@@ -562,7 +607,7 @@
           <button class="btn" id="addItemBtn">＋ Add point</button>
         </div>
 
-        <div class="footerNote">
+        <div class="footerNote" id="pdfTip">
           Photos are saved <strong>locally on this device</strong> only (no submissions).
           Click a thumbnail to view full-size. Press <span class="kbd">Esc</span> to close.
         </div>
@@ -635,6 +680,8 @@
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
     const listEl = document.getElementById("list");
+    const checklistInner = document.getElementById("checklistInner");
+
     const companyTitleEl = document.getElementById("companyTitle");
     const companySubEl = document.getElementById("companySub");
     const barFill = document.getElementById("barFill");
@@ -642,6 +689,7 @@
     const progressPct = document.getElementById("progressPct");
 
     const backBtn = document.getElementById("backBtn");
+    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
     const markAllBtn = document.getElementById("markAllBtn");
     const resetChecksBtn = document.getElementById("resetChecksBtn");
     const resetAllBtn = document.getElementById("resetAllBtn");
@@ -843,7 +891,7 @@
         p.textContent = item.text;
         main.appendChild(p);
 
-        // Photo area (thumbnail(s))
+        // Photo area (thumbnail)
         const photoRow = document.createElement("div");
         photoRow.className = "photoRow";
         main.appendChild(photoRow);
@@ -1014,6 +1062,107 @@
     }
 
     /***********************
+     * PDF EXPORT (includes photos)
+     ***********************/
+    function pad2(n){ return String(n).padStart(2, "0"); }
+    function formatDateTime(d){
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+    function safeFileStamp(d){
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+    }
+
+    async function downloadPdfReport(){
+      if (!activeCompanyId || !activeState) return;
+
+      const now = new Date();
+      const companyName = DEFAULTS[activeCompanyId].name;
+      const total = activeState.items.length;
+      const done = activeState.items.reduce((acc, it) => acc + (it.done ? 1 : 0), 0);
+      const pct = total === 0 ? 0 : Math.round((done/total)*100);
+
+      // Build an offscreen clone specifically for PDF (no buttons/inputs)
+      const sandbox = document.createElement("div");
+      sandbox.className = "pdfSandbox pdfList";
+
+      sandbox.innerHTML = `
+        <div class="pdfHeader">
+          <h1>Lightspeed Project Completion Report</h1>
+          <p><strong>Company:</strong> ${companyName} &nbsp; | &nbsp; <strong>Date:</strong> ${formatDateTime(now)} &nbsp; | &nbsp; <strong>Progress:</strong> ${done}/${total} (${pct}%)</p>
+        </div>
+      `;
+
+      const clone = checklistInner.cloneNode(true);
+
+      // Convert IDs in the clone to avoid duplicate IDs
+      clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+
+      // Remove the add box + footer tip in the PDF clone (CSS also hides but we’ll remove cleanly)
+      const addBox = clone.querySelector(".addBox");
+      if (addBox) addBox.remove();
+
+      const tip = clone.querySelector(".footerNote");
+      if (tip) tip.remove();
+
+      // Remove toolbar buttons row (CSS hides, but remove cleanly)
+      const btnRow = clone.querySelector(".btnRow");
+      if (btnRow) btnRow.remove();
+
+      // Remove top brand if any got cloned (none here, but safe)
+      const topBrand = clone.querySelector(".top");
+      if (topBrand) topBrand.remove();
+
+      // Ensure list exists
+      sandbox.appendChild(clone);
+      document.body.appendChild(sandbox);
+
+      // Render to canvas
+      const canvas = await html2canvas(sandbox, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+      });
+
+      // Remove sandbox from DOM
+      sandbox.remove();
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4"
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Fit image to page width with margins
+      const margin = 24;
+      const usableWidth = pageWidth - margin * 2;
+
+      const imgWidth = usableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = margin;
+
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - margin * 2);
+
+      while (heightLeft > 0) {
+        pdf.addPage();
+        position = margin - (imgHeight - heightLeft);
+        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+      }
+
+      const fileName = `Lightspeed_Completion_Report_${companyName.replace(/\s+/g,"_")}_${safeFileStamp(now)}.pdf`;
+      pdf.save(fileName);
+    }
+
+    /***********************
      * EVENTS
      ***********************/
     document.querySelectorAll(".companyBtn").forEach(btn => {
@@ -1024,6 +1173,7 @@
     });
 
     backBtn.addEventListener("click", goHome);
+    downloadPdfBtn.addEventListener("click", downloadPdfReport);
     markAllBtn.addEventListener("click", markAllComplete);
     resetChecksBtn.addEventListener("click", resetChecks);
     resetAllBtn.addEventListener("click", resetAll);
