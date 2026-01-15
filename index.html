@@ -367,21 +367,18 @@
       border-color: rgba(37,99,235,.28);
       background: rgba(37,99,235,.10);
     }
-    .mini.removePhoto{
-      border-color: rgba(225,29,72,.18);
-      background: rgba(225,29,72,.08);
-    }
-    .mini.removePhoto:hover{
-      border-color: rgba(225,29,72,.30);
-      background: rgba(225,29,72,.10);
-    }
 
+    /* Photos (multi) */
     .photoRow{
       margin-top: 10px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-start;
+    }
+    .thumbWrap{
+      position: relative;
+      width: 84px;
     }
     .thumb{
       width: 84px;
@@ -392,6 +389,28 @@
       background: rgba(2,6,23,.03);
       box-shadow: 0 10px 18px rgba(2,6,23,.06);
       cursor: pointer;
+      display:block;
+    }
+    .thumbDel{
+      position:absolute;
+      right: -6px;
+      top: -6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(225,29,72,.22);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 10px 18px rgba(2,6,23,.08);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      font-size: 14px;
+      line-height: 1;
+      user-select:none;
+    }
+    .thumbDel:hover{
+      border-color: rgba(225,29,72,.34);
+      background: rgba(255,255,255,.98);
     }
 
     .addBox{
@@ -438,6 +457,7 @@
     }
     .hide{ display:none !important; }
 
+    /* Modal preview */
     .modalOverlay{
       position: fixed;
       inset: 0;
@@ -487,7 +507,7 @@
       display:block;
     }
 
-    /* Offscreen PDF render container */
+    /* PDF Sandbox */
     .pdfSandbox{
       position: fixed;
       left: -99999px;
@@ -515,7 +535,7 @@
       color: rgba(15,23,42,.70);
     }
 
-    /* PDF specific overrides: make images full width */
+    /* PDF mode: full-size photos */
     .pdfMode .itemActions,
     .pdfMode .addBox,
     .pdfMode #pdfTip,
@@ -527,18 +547,27 @@
     }
     .pdfMode .itemMain{ cursor: default; }
     .pdfMode .check{ cursor: default; }
-    .pdfMode .thumb{
-      width: 100% !important;
-      height: auto !important;
-      max-height: 560px !important;
-      object-fit: contain !important;
-      border-radius: 14px !important;
-      display: block !important;
-    }
+
     .pdfMode .photoRow{
       width: 100% !important;
       display: block !important;
       margin-top: 10px !important;
+    }
+    .pdfMode .thumbWrap{
+      width: 100% !important;
+      margin: 10px 0 !important;
+    }
+    .pdfMode .thumb{
+      width: 100% !important;
+      height: auto !important;
+      max-height: 640px !important;
+      object-fit: contain !important;
+      border-radius: 14px !important;
+      display:block !important;
+      box-shadow: none !important;
+    }
+    .pdfMode .thumbDel{
+      display:none !important;
     }
   </style>
 </head>
@@ -618,7 +647,7 @@
 
         <div class="footerNote" id="pdfTip">
           Photos are saved <strong>locally on this device</strong> only (no submissions).
-          Click a thumbnail to view full-size. Press <span class="kbd">Esc</span> to close.
+          Tap a photo to view full-size. Press <span class="kbd">Esc</span> to close.
         </div>
       </div>
     </section>
@@ -636,6 +665,9 @@
   </div>
 
   <script>
+    /***********************
+     * DEFAULT CHECKLISTS
+     ***********************/
     const DEFAULTS = {
       smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
         "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
@@ -679,6 +711,9 @@
       ]}
     };
 
+    /***********************
+     * STATE + ELEMENTS
+     ***********************/
     const KEY_PREFIX = "lightspeed_checklist_v1:";
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
@@ -736,13 +771,16 @@
       };
     }
 
-    // IndexedDB photo storage (local device)
+    /***********************
+     * PHOTO STORAGE (IndexedDB)
+     * Multi-photo per item: store array of {id, dataUrl, ts}
+     ***********************/
     const DB_NAME = "lightspeed_photos_db";
     const DB_STORE = "photos";
 
     function openPhotoDB(){
       return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
+        const req = indexedDB.open(DB_NAME, 2);
         req.onupgradeneeded = () => {
           const db = req.result;
           if (!db.objectStoreNames.contains(DB_STORE)){
@@ -754,38 +792,57 @@
       });
     }
 
-    async function setPhoto(key, dataUrl){
-      const db = await openPhotoDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, "readwrite");
-        tx.objectStore(DB_STORE).put(dataUrl, key);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
+    function photoKey(companyId, itemId){
+      return `photos:${companyId}:${itemId}`;
     }
 
-    async function getPhoto(key){
+    async function getPhotos(key){
       const db = await openPhotoDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(DB_STORE, "readonly");
         const req = tx.objectStore(DB_STORE).get(key);
-        req.onsuccess = () => resolve(req.result || null);
+        req.onsuccess = () => {
+          const v = req.result;
+          resolve(Array.isArray(v) ? v : []);
+        };
         req.onerror = () => reject(req.error);
       });
     }
 
-    async function deletePhoto(key){
+    async function setPhotos(key, arr){
       const db = await openPhotoDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(DB_STORE, "readwrite");
-        tx.objectStore(DB_STORE).delete(key);
+        tx.objectStore(DB_STORE).put(arr, key);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    function photoKey(companyId, itemId){
-      return `photo:${companyId}:${itemId}`;
+    async function addPhoto(companyId, itemId, dataUrl){
+      const key = photoKey(companyId, itemId);
+      const arr = await getPhotos(key);
+      const newPhoto = {
+        id: cryptoRandomId("p"),
+        dataUrl,
+        ts: Date.now()
+      };
+      arr.push(newPhoto);
+      await setPhotos(key, arr);
+      return newPhoto;
+    }
+
+    async function removePhotoById(companyId, itemId, photoId){
+      const key = photoKey(companyId, itemId);
+      const arr = await getPhotos(key);
+      const next = arr.filter(p => p && p.id !== photoId);
+      await setPhotos(key, next);
+      return next;
+    }
+
+    async function deleteAllPhotos(companyId, itemId){
+      const key = photoKey(companyId, itemId);
+      await setPhotos(key, []);
     }
 
     function fileToDataUrl(file){
@@ -797,7 +854,9 @@
       });
     }
 
-    // Modal preview
+    /***********************
+     * MODAL PREVIEW
+     ***********************/
     const photoModal = document.getElementById("photoModal");
     const photoModalImg = document.getElementById("photoModalImg");
     const photoModalClose = document.getElementById("photoModalClose");
@@ -818,6 +877,9 @@
       if (e.key === "Escape") closePhotoModal();
     });
 
+    /***********************
+     * ROUTING
+     ***********************/
     function goHome(){
       window.location.hash = "";
       activeCompanyId = null;
@@ -858,6 +920,9 @@
     }
     window.addEventListener("hashchange", onHashChange);
 
+    /***********************
+     * RENDER
+     ***********************/
     async function render(){
       if (!activeState) return;
 
@@ -883,21 +948,39 @@
         p.textContent = item.text;
         main.appendChild(p);
 
+        // Photo area (multi)
         const photoRow = document.createElement("div");
         photoRow.className = "photoRow";
         main.appendChild(photoRow);
 
-        const saved = await getPhoto(photoKey(activeCompanyId, item.id));
-        if (saved){
+        const photos = await getPhotos(photoKey(activeCompanyId, item.id));
+        for (const ph of photos){
+          const wrap = document.createElement("div");
+          wrap.className = "thumbWrap";
+
           const img = document.createElement("img");
           img.className = "thumb";
-          img.src = saved;
+          img.src = ph.dataUrl;
           img.alt = "Attached photo";
           img.addEventListener("click", (e) => {
             e.stopPropagation();
             openPhotoModal(img.src);
           });
-          photoRow.appendChild(img);
+
+          const del = document.createElement("button");
+          del.className = "thumbDel";
+          del.type = "button";
+          del.title = "Remove photo";
+          del.textContent = "×";
+          del.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await removePhotoById(activeCompanyId, item.id, ph.id);
+            await render();
+          });
+
+          wrap.appendChild(img);
+          wrap.appendChild(del);
+          photoRow.appendChild(wrap);
         }
 
         const actions = document.createElement("div");
@@ -912,20 +995,21 @@
         photoBtn.className = "mini photo";
         photoBtn.textContent = "📷 Add photo";
 
-        const removePhotoBtn = document.createElement("button");
-        removePhotoBtn.className = "mini removePhoto";
-        removePhotoBtn.textContent = "Remove photo";
-        removePhotoBtn.addEventListener("click", async (e) => {
+        const removeAllPhotosBtn = document.createElement("button");
+        removeAllPhotosBtn.className = "mini remove";
+        removeAllPhotosBtn.textContent = "Remove all photos";
+        removeAllPhotosBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
-          await deletePhoto(photoKey(activeCompanyId, item.id));
+          await deleteAllPhotos(activeCompanyId, item.id);
           await render();
         });
 
         const removeBtn = document.createElement("button");
         removeBtn.className = "mini remove";
-        removeBtn.textContent = "Remove";
+        removeBtn.textContent = "Remove item";
         removeBtn.addEventListener("click", (e) => { e.stopPropagation(); removeItem(item.id); });
 
+        // single hidden input per item (used repeatedly)
         const fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.accept = "image/*";
@@ -941,30 +1025,50 @@
           const file = fileInput.files?.[0];
           if (!file) return;
 
+          // Instant thumbnail preview (before DB write)
           const tempUrl = URL.createObjectURL(file);
-          let img = photoRow.querySelector("img.thumb");
-          if (!img){
-            img = document.createElement("img");
-            img.className = "thumb";
-            img.alt = "Attached photo";
-            img.addEventListener("click", (e) => {
-              e.stopPropagation();
-              openPhotoModal(img.src);
-            });
-            photoRow.appendChild(img);
-          }
-          img.src = tempUrl;
 
+          const tempWrap = document.createElement("div");
+          tempWrap.className = "thumbWrap";
+
+          const tempImg = document.createElement("img");
+          tempImg.className = "thumb";
+          tempImg.src = tempUrl;
+          tempImg.alt = "Attached photo";
+          tempImg.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openPhotoModal(tempImg.src);
+          });
+
+          const tempDel = document.createElement("button");
+          tempDel.className = "thumbDel";
+          tempDel.type = "button";
+          tempDel.title = "Remove photo";
+          tempDel.textContent = "×";
+          // If they delete immediately before save finishes, just remove the temp node
+          tempDel.addEventListener("click", (e) => {
+            e.stopPropagation();
+            tempWrap.remove();
+            URL.revokeObjectURL(tempUrl);
+          });
+
+          tempWrap.appendChild(tempImg);
+          tempWrap.appendChild(tempDel);
+          photoRow.appendChild(tempWrap);
+
+          // Save permanently to IndexedDB
           const dataUrl = await fileToDataUrl(file);
-          await setPhoto(photoKey(activeCompanyId, item.id), dataUrl);
+          await addPhoto(activeCompanyId, item.id, dataUrl);
 
+          // Cleanup temp object URL and re-render so delete buttons target real IDs
           URL.revokeObjectURL(tempUrl);
           fileInput.value = "";
+          await render();
         });
 
         actions.appendChild(toggleBtn);
         actions.appendChild(photoBtn);
-        actions.appendChild(removePhotoBtn);
+        actions.appendChild(removeAllPhotosBtn);
         actions.appendChild(removeBtn);
         actions.appendChild(fileInput);
 
@@ -991,6 +1095,9 @@
       progressPct.textContent = `${pct}% complete`;
     }
 
+    /***********************
+     * ACTIONS
+     ***********************/
     function toggleItem(id){
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
@@ -1003,7 +1110,7 @@
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
 
-      deletePhoto(photoKey(activeCompanyId, id)).catch(() => {});
+      deleteAllPhotos(activeCompanyId, id).catch(() => {});
       activeState.items.splice(idx, 1);
       saveCompanyState(activeCompanyId, activeState);
       render();
@@ -1035,7 +1142,7 @@
     }
 
     function resetAll(){
-      Promise.all(activeState.items.map(it => deletePhoto(photoKey(activeCompanyId, it.id)).catch(() => {})))
+      Promise.all(activeState.items.map(it => deleteAllPhotos(activeCompanyId, it.id).catch(() => {})))
         .finally(() => {
           activeState = makeDefaultState(activeCompanyId);
           saveCompanyState(activeCompanyId, activeState);
@@ -1043,7 +1150,9 @@
         });
     }
 
-    // PDF Export with FULL-SIZED photos
+    /***********************
+     * PDF EXPORT (Full-size, includes ALL photos)
+     ***********************/
     function pad2(n){ return String(n).padStart(2, "0"); }
     function formatDateTime(d){
       return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
@@ -1071,11 +1180,8 @@
         </div>
       `;
 
-      // Clone the list only (not buttons)
+      // Clone the list and force images to full width via PDF CSS
       const listClone = listEl.cloneNode(true);
-
-      // Ensure thumbnails become "full width" in sandbox
-      // (CSS .pdfMode overrides do the sizing)
       sandbox.appendChild(listClone);
 
       document.body.appendChild(sandbox);
@@ -1123,6 +1229,9 @@
       pdf.save(fileName);
     }
 
+    /***********************
+     * EVENTS
+     ***********************/
     document.querySelectorAll(".companyBtn").forEach(btn => {
       btn.addEventListener("click", () => {
         const companyId = btn.getAttribute("data-company");
@@ -1150,6 +1259,7 @@
       }
     });
 
+    // Initial route
     onHashChange();
   </script>
 </body>
