@@ -6,7 +6,6 @@
   <title>Lightspeed Project Completion List</title>
   <style>
     :root{
-      /* Light theme */
       --bg0:#f8fafc;
       --bg1:#eef2ff;
       --card:#ffffff;
@@ -26,9 +25,9 @@
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
 
-    /* ✅ Page container: always centered horizontally, vertical centering only on landing */
+    /* Center horizontally always. Vertical center only on landing. */
     body{
       margin:0;
       font-family: var(--sans);
@@ -41,37 +40,30 @@
       min-height:100vh;
 
       display:flex;
-      justify-content:center;   /* horizontal center always */
-      align-items:flex-start;   /* default: top (good for scrolling checklist) */
+      justify-content:center;
+      align-items:flex-start; /* default: top (good for checklist scrolling) */
     }
     body.landing-center{
-      align-items:center;       /* ✅ vertical center only on landing */
+      align-items:center; /* landing page centered vertically */
     }
 
     .wrap{
       width: min(980px, 100%);
-      padding: 34px 18px 64px;
+      padding: 26px 18px 64px;
     }
     body.landing-center .wrap{
-      padding: 18px 18px; /* tighter when centered */
+      padding: 18px 18px;
     }
 
-    /* Top bar */
+    /* Simple top brand (Mode bar removed) */
     .top{
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:14px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-      text-align:center;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
       gap:12px;
+      margin-bottom: 14px;
+      text-align:center;
       user-select:none;
-      justify-content:center;
     }
     .dot{
       width: 14px; height: 14px;
@@ -79,40 +71,16 @@
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       box-shadow: 0 0 0 6px rgba(37,99,235,.10), 0 0 24px rgba(124,58,237,.14);
     }
-    .brand h1{
-      font-size: 14px;
+    .brandText{
+      font-size: 13px;
       margin:0;
-      letter-spacing:.6px;
+      letter-spacing:.8px;
       text-transform: uppercase;
-      color: rgba(15,23,42,.80);
-    }
-    .pill{
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.70);
-      padding: 10px 12px;
-      border-radius: 999px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      box-shadow: 0 10px 26px rgba(2,6,23,.08);
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-      justify-content:center;
-    }
-    .pill code{
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(15,23,42,.85);
-      background: rgba(2,6,23,.04);
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.08);
+      color: rgba(15,23,42,.75);
     }
 
-    /* Cards */
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.86));
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -161,14 +129,13 @@
       cursor:pointer;
       width: 100%;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.88);
       border-radius: 16px;
       padding: 18px 16px;
       text-align:center;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap: 12px;
       transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
       min-height: 96px;
       box-shadow: 0 10px 26px rgba(2,6,23,.06);
@@ -176,10 +143,9 @@
     .companyBtn:hover{
       transform: translateY(-1px);
       border-color: var(--stroke2);
-      background: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.96);
       box-shadow: 0 14px 32px rgba(2,6,23,.10);
     }
-    .companyBtn > div{ width:100%; }
     .companyName{
       font-size: 16px;
       margin: 0 0 6px 0;
@@ -202,10 +168,7 @@
       margin-bottom: 14px;
       text-align:center;
     }
-    .titleBlock{
-      width: 100%;
-      text-align:center;
-    }
+    .titleBlock{ width: 100%; text-align:center; }
     .titleBlock h2{
       margin:0 0 6px 0;
       font-size: 22px;
@@ -229,7 +192,7 @@
     .btn{
       cursor:pointer;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.88);
       color: var(--text);
       padding: 10px 12px;
       border-radius: 12px;
@@ -243,7 +206,7 @@
     }
     .btn:hover{
       border-color: var(--stroke2);
-      background: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.96);
       transform: translateY(-1px);
       box-shadow: 0 14px 30px rgba(2,6,23,.10);
     }
@@ -269,7 +232,7 @@
       border: 1px solid var(--stroke);
       border-radius: 14px;
       padding: 12px 12px;
-      background: rgba(255,255,255,.72);
+      background: rgba(255,255,255,.78);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -320,7 +283,7 @@
     .item{
       width: 100%;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.80);
+      background: rgba(255,255,255,.86);
       border-radius: var(--radius2);
       padding: 12px 12px;
       display:flex;
@@ -372,7 +335,7 @@
     .mini{
       cursor:pointer;
       border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.88);
       color: rgba(15,23,42,.92);
       padding: 8px 10px;
       border-radius: 12px;
@@ -385,7 +348,7 @@
     .mini:hover{
       transform: translateY(-1px);
       border-color: rgba(15,23,42,.16);
-      background: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.96);
       box-shadow: 0 14px 26px rgba(2,6,23,.08);
     }
     .mini.remove{
@@ -400,7 +363,7 @@
     .addBox{
       margin: 14px auto 0;
       border: 1px dashed rgba(15,23,42,.18);
-      background: rgba(255,255,255,.70);
+      background: rgba(255,255,255,.78);
       border-radius: 16px;
       padding: 14px;
       display:flex;
@@ -413,7 +376,7 @@
     .addBox input{
       flex: 1 1 420px;
       min-width: 220px;
-      background: rgba(255,255,255,.90);
+      background: rgba(255,255,255,.96);
       border: 1px solid rgba(15,23,42,.10);
       border-radius: 12px;
       padding: 12px 12px;
@@ -446,44 +409,36 @@
 <body class="landing-center">
   <div class="wrap">
     <div class="top">
-      <div class="brand">
-        <div class="dot"></div>
-        <h1>Lightspeed</h1>
-      </div>
-      <div class="pill">
-        <span>Mode:</span>
-        <code>Local Checklist</code>
-        <span>•</span>
-        <span>Saves per device</span>
-      </div>
+      <div class="dot"></div>
+      <p class="brandText">LIGHTSPEED</p>
     </div>
 
     <!-- LANDING -->
     <section id="landing" class="card">
       <div class="hero">
         <h2 class="heroTitle">Lightspeed Project Completion List</h2>
-        <p class="heroSub">Select your company to view and manage your completion checklist. This page does not submit data anywhere — it’s a local checklist designed for quick field use.</p>
+        <p class="heroSub">Select your company to view and manage your completion checklist.</p>
       </div>
 
       <div class="companyGrid">
         <button class="companyBtn" data-company="smith">
           <div>
             <p class="companyName">Smith Construction</p>
-            <p class="companyMeta">Completion tasks</p>
+            <p class="companyMeta">Completion list</p>
           </div>
         </button>
 
         <button class="companyBtn" data-company="spi">
           <div>
             <p class="companyName">SPI</p>
-            <p class="companyMeta">Completion tasks</p>
+            <p class="companyMeta">Completion list</p>
           </div>
         </button>
 
         <button class="companyBtn" data-company="bluestar">
           <div>
             <p class="companyName">Blue star</p>
-            <p class="companyMeta">Completion tasks</p>
+            <p class="companyMeta">Completion list</p>
           </div>
         </button>
       </div>
@@ -525,7 +480,7 @@
 
         <div class="footerNote">
           Tip: click the checkbox area to toggle <span class="kbd">Complete</span>/<span class="kbd">Not Completed</span>.
-          This saves to your browser (localStorage) only — no submissions.
+          This saves locally (no submissions).
         </div>
       </div>
     </section>
@@ -637,7 +592,6 @@
       checklistView.classList.add("hide");
       landing.classList.remove("hide");
 
-      // ✅ center landing vertically + horizontally
       setLandingCentered(true);
     }
 
@@ -651,7 +605,6 @@
       landing.classList.add("hide");
       checklistView.classList.remove("hide");
 
-      // ✅ turn off vertical centering so checklist scrolls naturally
       setLandingCentered(false);
 
       companyTitleEl.textContent = DEFAULTS[companyId].name + " — Completion List";
@@ -672,6 +625,8 @@
     window.addEventListener("hashchange", onHashChange);
 
     function render(){
+      if (!activeState) return;
+
       listEl.innerHTML = "";
       activeState.items.forEach(item => {
         const row = document.createElement("div");
@@ -806,7 +761,6 @@
       }
     });
 
-    // initial route
     onHashChange();
   </script>
 </body>
