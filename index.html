@@ -32,7 +32,6 @@
 
     *{ box-sizing:border-box; }
 
-    /* Center horizontally always. Vertical center only on landing. */
     body{
       margin:0;
       font-family: var(--sans);
@@ -46,7 +45,7 @@
 
       display:flex;
       justify-content:center;
-      align-items:flex-start; /* default: top (good for checklist scrolling) */
+      align-items:flex-start;
     }
     body.landing-center{ align-items:center; }
 
@@ -56,7 +55,6 @@
     }
     body.landing-center .wrap{ padding: 18px 18px; }
 
-    /* Simple top brand */
     .top{
       display:flex;
       align-items:center;
@@ -90,7 +88,6 @@
     }
     .cardInner{ padding: 22px; text-align:center; }
 
-    /* Landing */
     .hero{
       padding: 28px 22px;
       border-bottom: 1px solid var(--stroke);
@@ -159,7 +156,6 @@
       line-height: 1.4;
     }
 
-    /* Checklist view */
     .toolbar{
       display:flex;
       align-items:center;
@@ -380,7 +376,6 @@
       background: rgba(225,29,72,.10);
     }
 
-    /* Photos */
     .photoRow{
       margin-top: 10px;
       display: flex;
@@ -443,7 +438,6 @@
     }
     .hide{ display:none !important; }
 
-    /* Modal preview */
     .modalOverlay{
       position: fixed;
       inset: 0;
@@ -520,17 +514,32 @@
       font-size: 12px;
       color: rgba(15,23,42,.70);
     }
-    .pdfList .itemActions,
-    .pdfList .addBox,
-    .pdfList #pdfTip,
-    .pdfList .btnRow,
-    .pdfList .top,
-    .pdfList input,
-    .pdfList button{
+
+    /* PDF specific overrides: make images full width */
+    .pdfMode .itemActions,
+    .pdfMode .addBox,
+    .pdfMode #pdfTip,
+    .pdfMode .btnRow,
+    .pdfMode .top,
+    .pdfMode input,
+    .pdfMode button{
       display: none !important;
     }
-    .pdfList .itemMain{ cursor: default; }
-    .pdfList .check{ cursor: default; }
+    .pdfMode .itemMain{ cursor: default; }
+    .pdfMode .check{ cursor: default; }
+    .pdfMode .thumb{
+      width: 100% !important;
+      height: auto !important;
+      max-height: 560px !important;
+      object-fit: contain !important;
+      border-radius: 14px !important;
+      display: block !important;
+    }
+    .pdfMode .photoRow{
+      width: 100% !important;
+      display: block !important;
+      margin-top: 10px !important;
+    }
   </style>
 </head>
 
@@ -627,9 +636,6 @@
   </div>
 
   <script>
-    /***********************
-     * DEFAULT CHECKLISTS
-     ***********************/
     const DEFAULTS = {
       smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
         "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
@@ -673,9 +679,6 @@
       ]}
     };
 
-    /***********************
-     * STATE + ELEMENTS
-     ***********************/
     const KEY_PREFIX = "lightspeed_checklist_v1:";
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
@@ -733,10 +736,7 @@
       };
     }
 
-    /***********************
-     * PHOTO STORAGE (IndexedDB)
-     * Option A: local per device
-     ***********************/
+    // IndexedDB photo storage (local device)
     const DB_NAME = "lightspeed_photos_db";
     const DB_STORE = "photos";
 
@@ -797,9 +797,7 @@
       });
     }
 
-    /***********************
-     * MODAL PREVIEW
-     ***********************/
+    // Modal preview
     const photoModal = document.getElementById("photoModal");
     const photoModalImg = document.getElementById("photoModalImg");
     const photoModalClose = document.getElementById("photoModalClose");
@@ -820,9 +818,6 @@
       if (e.key === "Escape") closePhotoModal();
     });
 
-    /***********************
-     * ROUTING
-     ***********************/
     function goHome(){
       window.location.hash = "";
       activeCompanyId = null;
@@ -863,9 +858,6 @@
     }
     window.addEventListener("hashchange", onHashChange);
 
-    /***********************
-     * RENDER
-     ***********************/
     async function render(){
       if (!activeState) return;
 
@@ -891,12 +883,10 @@
         p.textContent = item.text;
         main.appendChild(p);
 
-        // Photo area (thumbnail)
         const photoRow = document.createElement("div");
         photoRow.className = "photoRow";
         main.appendChild(photoRow);
 
-        // Load saved photo (if exists)
         const saved = await getPhoto(photoKey(activeCompanyId, item.id));
         if (saved){
           const img = document.createElement("img");
@@ -939,7 +929,7 @@
         const fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.accept = "image/*";
-        fileInput.capture = "environment"; // mobile-friendly (rear camera where supported)
+        fileInput.capture = "environment";
         fileInput.style.display = "none";
 
         photoBtn.addEventListener("click", (e) => {
@@ -951,7 +941,6 @@
           const file = fileInput.files?.[0];
           if (!file) return;
 
-          // ✅ immediate preview (instant)
           const tempUrl = URL.createObjectURL(file);
           let img = photoRow.querySelector("img.thumb");
           if (!img){
@@ -966,7 +955,6 @@
           }
           img.src = tempUrl;
 
-          // Save permanently (local device)
           const dataUrl = await fileToDataUrl(file);
           await setPhoto(photoKey(activeCompanyId, item.id), dataUrl);
 
@@ -1003,9 +991,6 @@
       progressPct.textContent = `${pct}% complete`;
     }
 
-    /***********************
-     * ACTIONS
-     ***********************/
     function toggleItem(id){
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
@@ -1018,9 +1003,7 @@
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
 
-      // remove photo too
       deletePhoto(photoKey(activeCompanyId, id)).catch(() => {});
-
       activeState.items.splice(idx, 1);
       saveCompanyState(activeCompanyId, activeState);
       render();
@@ -1052,7 +1035,6 @@
     }
 
     function resetAll(){
-      // also clear photos for all items in this company
       Promise.all(activeState.items.map(it => deletePhoto(photoKey(activeCompanyId, it.id)).catch(() => {})))
         .finally(() => {
           activeState = makeDefaultState(activeCompanyId);
@@ -1061,9 +1043,7 @@
         });
     }
 
-    /***********************
-     * PDF EXPORT (includes photos)
-     ***********************/
+    // PDF Export with FULL-SIZED photos
     function pad2(n){ return String(n).padStart(2, "0"); }
     function formatDateTime(d){
       return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
@@ -1081,9 +1061,8 @@
       const done = activeState.items.reduce((acc, it) => acc + (it.done ? 1 : 0), 0);
       const pct = total === 0 ? 0 : Math.round((done/total)*100);
 
-      // Build an offscreen clone specifically for PDF (no buttons/inputs)
       const sandbox = document.createElement("div");
-      sandbox.className = "pdfSandbox pdfList";
+      sandbox.className = "pdfSandbox pdfMode";
 
       sandbox.innerHTML = `
         <div class="pdfHeader">
@@ -1092,38 +1071,21 @@
         </div>
       `;
 
-      const clone = checklistInner.cloneNode(true);
+      // Clone the list only (not buttons)
+      const listClone = listEl.cloneNode(true);
 
-      // Convert IDs in the clone to avoid duplicate IDs
-      clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+      // Ensure thumbnails become "full width" in sandbox
+      // (CSS .pdfMode overrides do the sizing)
+      sandbox.appendChild(listClone);
 
-      // Remove the add box + footer tip in the PDF clone (CSS also hides but we’ll remove cleanly)
-      const addBox = clone.querySelector(".addBox");
-      if (addBox) addBox.remove();
-
-      const tip = clone.querySelector(".footerNote");
-      if (tip) tip.remove();
-
-      // Remove toolbar buttons row (CSS hides, but remove cleanly)
-      const btnRow = clone.querySelector(".btnRow");
-      if (btnRow) btnRow.remove();
-
-      // Remove top brand if any got cloned (none here, but safe)
-      const topBrand = clone.querySelector(".top");
-      if (topBrand) topBrand.remove();
-
-      // Ensure list exists
-      sandbox.appendChild(clone);
       document.body.appendChild(sandbox);
 
-      // Render to canvas
       const canvas = await html2canvas(sandbox, {
         scale: 2,
         backgroundColor: "#ffffff",
         useCORS: true
       });
 
-      // Remove sandbox from DOM
       sandbox.remove();
 
       const imgData = canvas.toDataURL("image/png");
@@ -1138,7 +1100,6 @@
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      // Fit image to page width with margins
       const margin = 24;
       const usableWidth = pageWidth - margin * 2;
 
@@ -1146,15 +1107,15 @@
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       let heightLeft = imgHeight;
-      let position = margin;
+      let y = margin;
 
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
       heightLeft -= (pageHeight - margin * 2);
 
       while (heightLeft > 0) {
         pdf.addPage();
-        position = margin - (imgHeight - heightLeft);
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+        y = margin - (imgHeight - heightLeft);
+        pdf.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
         heightLeft -= (pageHeight - margin * 2);
       }
 
@@ -1162,9 +1123,6 @@
       pdf.save(fileName);
     }
 
-    /***********************
-     * EVENTS
-     ***********************/
     document.querySelectorAll(".companyBtn").forEach(btn => {
       btn.addEventListener("click", () => {
         const companyId = btn.getAttribute("data-company");
@@ -1192,7 +1150,6 @@
       }
     });
 
-    // Initial route
     onHashChange();
   </script>
 </body>
