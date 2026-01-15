@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Lightspeed Project Completion List</title>
+  <style>
+    :root{
+      /* Light theme */
+      --bg0:#f8fafc;
+      --bg1:#eef2ff;
+      --card:#ffffff;
+      --stroke: rgba(15,23,42,.10);
+      --stroke2: rgba(15,23,42,.16);
+      --text:#0f172a;
+      --muted: rgba(15,23,42,.72);
+      --muted2: rgba(15,23,42,.55);
+      --accent:#2563eb;
+      --accent2:#7c3aed;
+      --good:#16a34a;
+      --bad:#e11d48;
+      --shadow: 0 14px 40px rgba(2,6,23,.10);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+
+    /* ✅ Page container: always centered horizontally, vertical centering only on landing */
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 18% 10%, rgba(37,99,235,.16), transparent 55%),
+        radial-gradient(800px 520px at 90% 20%, rgba(124,58,237,.12), transparent 55%),
+        radial-gradient(900px 700px at 50% 100%, rgba(22,163,74,.08), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+
+      display:flex;
+      justify-content:center;   /* horizontal center always */
+      align-items:flex-start;   /* default: top (good for scrolling checklist) */
+    }
+    body.landing-center{
+      align-items:center;       /* ✅ vertical center only on landing */
+    }
+
+    .wrap{
+      width: min(980px, 100%);
+      padding: 34px 18px 64px;
+    }
+    body.landing-center .wrap{
+      padding: 18px 18px; /* tighter when centered */
+    }
+
+    /* Top bar */
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      text-align:center;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      user-select:none;
+      justify-content:center;
+    }
+    .dot{
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 6px rgba(37,99,235,.10), 0 0 24px rgba(124,58,237,.14);
+    }
+    .brand h1{
+      font-size: 14px;
+      margin:0;
+      letter-spacing:.6px;
+      text-transform: uppercase;
+      color: rgba(15,23,42,.80);
+    }
+    .pill{
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.70);
+      padding: 10px 12px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      justify-content:center;
+    }
+    .pill code{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(15,23,42,.85);
+      background: rgba(2,6,23,.04);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.08);
+    }
+
+    /* Cards */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.86));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      margin: 0 auto;
+    }
+    .cardInner{ padding: 22px; text-align:center; }
+
+    /* Landing */
+    .hero{
+      padding: 28px 22px;
+      border-bottom: 1px solid var(--stroke);
+      background:
+        radial-gradient(700px 280px at 10% 10%, rgba(37,99,235,.12), transparent 55%),
+        radial-gradient(640px 260px at 85% 0%, rgba(124,58,237,.10), transparent 60%),
+        rgba(255,255,255,.60);
+      text-align:center;
+    }
+    .heroTitle{
+      font-size: 34px;
+      line-height: 1.1;
+      margin: 0 0 10px 0;
+      letter-spacing: -.5px;
+    }
+    .heroSub{
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 72ch;
+    }
+
+    .companyGrid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 14px;
+      padding: 18px;
+      justify-items: center;
+    }
+    @media (max-width: 860px){
+      .companyGrid{ grid-template-columns: 1fr; }
+      .heroTitle{ font-size: 28px; }
+    }
+
+    .companyBtn{
+      cursor:pointer;
+      width: 100%;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      border-radius: 16px;
+      padding: 18px 16px;
+      text-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 12px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+      min-height: 96px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.06);
+    }
+    .companyBtn:hover{
+      transform: translateY(-1px);
+      border-color: var(--stroke2);
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 14px 32px rgba(2,6,23,.10);
+    }
+    .companyBtn > div{ width:100%; }
+    .companyName{
+      font-size: 16px;
+      margin: 0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .companyMeta{
+      margin:0;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* Checklist view */
+    .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      text-align:center;
+    }
+    .titleBlock{
+      width: 100%;
+      text-align:center;
+    }
+    .titleBlock h2{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing:-.2px;
+    }
+    .titleBlock p{
+      margin:0 auto;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 78ch;
+    }
+
+    .btnRow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn{
+      cursor:pointer;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      transition: border-color .12s ease, background .12s ease, transform .12s ease, box-shadow .12s ease;
+      user-select:none;
+      box-shadow: 0 10px 24px rgba(2,6,23,.06);
+    }
+    .btn:hover{
+      border-color: var(--stroke2);
+      background: rgba(255,255,255,.95);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(2,6,23,.10);
+    }
+    .btn.danger{
+      border-color: rgba(225,29,72,.20);
+      background: rgba(225,29,72,.08);
+    }
+    .btn.danger:hover{
+      border-color: rgba(225,29,72,.36);
+      background: rgba(225,29,72,.10);
+    }
+    .btn.good{
+      border-color: rgba(22,163,74,.20);
+      background: rgba(22,163,74,.08);
+    }
+    .btn.good:hover{
+      border-color: rgba(22,163,74,.36);
+      background: rgba(22,163,74,.10);
+    }
+
+    .progressWrap{
+      margin: 14px auto 18px;
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: rgba(255,255,255,.72);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 12px;
+      flex-wrap: wrap;
+      text-align:center;
+      box-shadow: 0 10px 24px rgba(2,6,23,.06);
+    }
+    .bar{
+      width: min(560px, 100%);
+      height: 10px;
+      border-radius: 999px;
+      overflow:hidden;
+      background: rgba(2,6,23,.06);
+      border: 1px solid rgba(15,23,42,.08);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--good));
+      transition: width .18s ease;
+    }
+    .progressText{
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:center;
+      white-space: nowrap;
+    }
+    .badge{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(2,6,23,.03);
+      color: rgba(15,23,42,.86);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      align-items: center;
+    }
+    .item{
+      width: 100%;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.80);
+      border-radius: var(--radius2);
+      padding: 12px 12px;
+      display:flex;
+      align-items:flex-start;
+      gap: 12px;
+      text-align:left;
+      box-shadow: 0 10px 22px rgba(2,6,23,.05);
+    }
+    .item.completed{
+      border-color: rgba(22,163,74,.22);
+      background: rgba(22,163,74,.06);
+    }
+    .check{
+      width: 18px; height: 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(15,23,42,.16);
+      background: rgba(2,6,23,.03);
+      display:grid;
+      place-items:center;
+      margin-top: 2px;
+      flex: 0 0 auto;
+    }
+    .item.completed .check{
+      border-color: rgba(22,163,74,.35);
+      background: rgba(22,163,74,.16);
+    }
+    .check svg{ opacity:0; }
+    .item.completed .check svg{ opacity:1; }
+
+    .itemMain{ flex: 1 1 auto; }
+    .itemText{
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(15,23,42,.92);
+    }
+    .item.completed .itemText{
+      color: rgba(15,23,42,.62);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+      text-decoration-color: rgba(15,23,42,.25);
+    }
+
+    .itemActions{
+      display:flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+    .mini{
+      cursor:pointer;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.85);
+      color: rgba(15,23,42,.92);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+      user-select:none;
+      white-space: nowrap;
+      box-shadow: 0 10px 20px rgba(2,6,23,.05);
+    }
+    .mini:hover{
+      transform: translateY(-1px);
+      border-color: rgba(15,23,42,.16);
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 14px 26px rgba(2,6,23,.08);
+    }
+    .mini.remove{
+      border-color: rgba(225,29,72,.18);
+      background: rgba(225,29,72,.08);
+    }
+    .mini.remove:hover{
+      border-color: rgba(225,29,72,.30);
+      background: rgba(225,29,72,.10);
+    }
+
+    .addBox{
+      margin: 14px auto 0;
+      border: 1px dashed rgba(15,23,42,.18);
+      background: rgba(255,255,255,.70);
+      border-radius: 16px;
+      padding: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 10px 22px rgba(2,6,23,.05);
+    }
+    .addBox input{
+      flex: 1 1 420px;
+      min-width: 220px;
+      background: rgba(255,255,255,.90);
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 12px;
+      padding: 12px 12px;
+      color: var(--text);
+      font-size: 13px;
+      outline:none;
+    }
+    .addBox input::placeholder{ color: rgba(15,23,42,.45); }
+
+    .footerNote{
+      margin-top: 16px;
+      color: rgba(15,23,42,.55);
+      font-size: 12px;
+      line-height: 1.6;
+      text-align:center;
+    }
+    .kbd{
+      font-family: var(--mono);
+      border: 1px solid rgba(15,23,42,.14);
+      background: rgba(2,6,23,.03);
+      padding: 2px 8px;
+      border-radius: 9px;
+      color: rgba(15,23,42,.78);
+      font-size: 12px;
+    }
+    .hide{ display:none !important; }
+  </style>
+</head>
+
+<body class="landing-center">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="dot"></div>
+        <h1>Lightspeed</h1>
+      </div>
+      <div class="pill">
+        <span>Mode:</span>
+        <code>Local Checklist</code>
+        <span>•</span>
+        <span>Saves per device</span>
+      </div>
+    </div>
+
+    <!-- LANDING -->
+    <section id="landing" class="card">
+      <div class="hero">
+        <h2 class="heroTitle">Lightspeed Project Completion List</h2>
+        <p class="heroSub">Select your company to view and manage your completion checklist. This page does not submit data anywhere — it’s a local checklist designed for quick field use.</p>
+      </div>
+
+      <div class="companyGrid">
+        <button class="companyBtn" data-company="smith">
+          <div>
+            <p class="companyName">Smith Construction</p>
+            <p class="companyMeta">Completion tasks</p>
+          </div>
+        </button>
+
+        <button class="companyBtn" data-company="spi">
+          <div>
+            <p class="companyName">SPI</p>
+            <p class="companyMeta">Completion tasks</p>
+          </div>
+        </button>
+
+        <button class="companyBtn" data-company="bluestar">
+          <div>
+            <p class="companyName">Blue star</p>
+            <p class="companyMeta">Completion tasks</p>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- CHECKLIST VIEW -->
+    <section id="checklistView" class="card hide" style="margin-top:18px;">
+      <div class="cardInner">
+        <div class="toolbar">
+          <div class="titleBlock">
+            <h2 id="companyTitle">Company Checklist</h2>
+            <p id="companySub">Mark items complete or not complete. Add/remove items as needed.</p>
+          </div>
+
+          <div class="btnRow">
+            <button class="btn" id="backBtn">← Back</button>
+            <button class="btn good" id="markAllBtn">✓ Mark all complete</button>
+            <button class="btn" id="resetChecksBtn">↺ Reset checks</button>
+            <button class="btn danger" id="resetAllBtn">🗑 Reset checklist</button>
+          </div>
+        </div>
+
+        <div class="progressWrap">
+          <div class="bar" aria-label="Progress">
+            <div id="barFill"></div>
+          </div>
+          <div class="progressText">
+            <span class="badge" id="progressBadge">0 / 0</span>
+            <span id="progressPct">0% complete</span>
+          </div>
+        </div>
+
+        <div id="list" class="list" aria-live="polite"></div>
+
+        <div class="addBox">
+          <input id="newItemInput" type="text" placeholder="Add a new checklist point (press Enter to add)" />
+          <button class="btn" id="addItemBtn">＋ Add point</button>
+        </div>
+
+        <div class="footerNote">
+          Tip: click the checkbox area to toggle <span class="kbd">Complete</span>/<span class="kbd">Not Completed</span>.
+          This saves to your browser (localStorage) only — no submissions.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const DEFAULTS = {
+      smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
+        "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
+        "Patch all tie-holes, form-tie cone holes, chamfer voids; grind off fins; ensure uniform finish.",
+        "Verify reshoring durations satisfied (retain pour/strip date logs).",
+        "Repair honeycombs, voids, blowouts with approved materials; finish to match adjacent concrete.",
+        "Address surface defects (bugholes, fins, small spalls); restore sharp arrises at slab edges/openings.",
+        "Treat cold joints as directed; verify no open cracks at joints.",
+        "Perform crack survey; epoxy inject or route-and-seal structural cracks.",
+        "Correct slab high/low spots impacting drainage or transitions.",
+        "Ensure column faces plumb; grout pads sound.",
+        "CMU walls: replace/repoint cracked units; confirm full-grout; bond beams/lintels complete.",
+        "Confirm ramp slopes; eliminate ponding; feather transitions.",
+        "Verify CIP curbs straight; repair chips/spalls.",
+        "Stair/elevator openings patched; divider beams installed.",
+        "Trench recesses complete; edges sound; dimensions match coordination.",
+        "Drains/RWL openings formed correctly; no accidental cores.",
+        "Install sealant at slab edges and joints; penetration collars complete.",
+        "Remove temporary rails, toe boards, netting; patch anchor holes.",
+        "Verify TOS/TOB elevations; provide as-built survey.",
+        "Remove curing compounds; clean all structural surfaces.",
+        "Compile concrete test reports; close NCRs; deliver as-builts."
+      ]},
+      spi: { name: "SPI", subtitle: "Completion Checklist", items: [
+        "Remove temporary decking sheets, erection angles/kickers, safety tabs.",
+        "Remove or grind flush weld tabs, lifting eyes, temporary embed plates; protect bare steel.",
+        "Verify bearing lengths; correct short-bearings; log corrections.",
+        "Fully grout pockets and shear keys; no voids.",
+        "Replace temporary shim packs with permanent shims/grout.",
+        "Confirm joist alignment and camber; remedial grind/topping if needed.",
+        "Remove temporary anchors; fill holes with epoxy/grout.",
+        "Complete and clean field welds; apply touch-up coatings.",
+        "Leave undersides/deck soffits free of debris and protrusions."
+      ]},
+      bluestar: { name: "Blue star", subtitle: "Completion Checklist", items: [
+        "Verify all lap splices, hooks, and dowels remain intact after remedial work.",
+        "Protect any rebar exposed during patching; re-encase per engineer’s direction.",
+        "Ensure anchor holes near reinforcement are epoxy-filled or grouted.",
+        "Provide final reinforcement inspection sign-off.",
+        "Submit photo documentation of congestion areas and critical details."
+      ]}
+    };
+
+    const KEY_PREFIX = "lightspeed_checklist_v1:";
+    const landing = document.getElementById("landing");
+    const checklistView = document.getElementById("checklistView");
+    const listEl = document.getElementById("list");
+    const companyTitleEl = document.getElementById("companyTitle");
+    const companySubEl = document.getElementById("companySub");
+    const barFill = document.getElementById("barFill");
+    const progressBadge = document.getElementById("progressBadge");
+    const progressPct = document.getElementById("progressPct");
+
+    const backBtn = document.getElementById("backBtn");
+    const markAllBtn = document.getElementById("markAllBtn");
+    const resetChecksBtn = document.getElementById("resetChecksBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const newItemInput = document.getElementById("newItemInput");
+    const addItemBtn = document.getElementById("addItemBtn");
+
+    let activeCompanyId = null;
+    let activeState = null;
+
+    function setLandingCentered(isCentered){
+      document.body.classList.toggle("landing-center", isCentered);
+    }
+
+    function storageKey(companyId){ return KEY_PREFIX + companyId; }
+    function loadCompanyState(companyId){
+      const raw = localStorage.getItem(storageKey(companyId));
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+    function saveCompanyState(companyId, state){
+      localStorage.setItem(storageKey(companyId), JSON.stringify(state));
+    }
+    function cryptoRandomId(seed){
+      try{
+        const arr = new Uint32Array(2);
+        crypto.getRandomValues(arr);
+        return seed + "_" + arr[0].toString(16) + arr[1].toString(16);
+      }catch{
+        return seed + "_" + Math.random().toString(16).slice(2);
+      }
+    }
+    function makeDefaultState(companyId){
+      const base = DEFAULTS[companyId];
+      return {
+        companyId,
+        items: base.items.map((text, idx) => ({
+          id: cryptoRandomId(companyId + "_" + idx),
+          text,
+          done: false
+        }))
+      };
+    }
+
+    function goHome(){
+      window.location.hash = "";
+      activeCompanyId = null;
+      activeState = null;
+
+      checklistView.classList.add("hide");
+      landing.classList.remove("hide");
+
+      // ✅ center landing vertically + horizontally
+      setLandingCentered(true);
+    }
+
+    function openCompany(companyId){
+      if (!DEFAULTS[companyId]) return;
+
+      activeCompanyId = companyId;
+      activeState = loadCompanyState(companyId) ?? makeDefaultState(companyId);
+      saveCompanyState(companyId, activeState);
+
+      landing.classList.add("hide");
+      checklistView.classList.remove("hide");
+
+      // ✅ turn off vertical centering so checklist scrolls naturally
+      setLandingCentered(false);
+
+      companyTitleEl.textContent = DEFAULTS[companyId].name + " — Completion List";
+      companySubEl.textContent = DEFAULTS[companyId].subtitle;
+
+      render();
+    }
+
+    function onHashChange(){
+      const hash = window.location.hash.replace("#", "").trim();
+      if (!hash){ goHome(); return; }
+
+      const params = new URLSearchParams(hash);
+      const companyId = params.get("company");
+      if (companyId && DEFAULTS[companyId]) openCompany(companyId);
+      else goHome();
+    }
+    window.addEventListener("hashchange", onHashChange);
+
+    function render(){
+      listEl.innerHTML = "";
+      activeState.items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item" + (item.done ? " completed" : "");
+
+        const check = document.createElement("div");
+        check.className = "check";
+        check.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M16.5 6.5L8.25 14.75L3.5 10" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+
+        const main = document.createElement("div");
+        main.className = "itemMain";
+
+        const p = document.createElement("p");
+        p.className = "itemText";
+        p.textContent = item.text;
+
+        main.appendChild(p);
+
+        const actions = document.createElement("div");
+        actions.className = "itemActions";
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.className = "mini";
+        toggleBtn.textContent = item.done ? "Mark not completed" : "Mark completed";
+        toggleBtn.addEventListener("click", () => toggleItem(item.id));
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "mini remove";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => removeItem(item.id));
+
+        actions.appendChild(toggleBtn);
+        actions.appendChild(removeBtn);
+
+        check.addEventListener("click", () => toggleItem(item.id));
+        main.addEventListener("click", () => toggleItem(item.id));
+
+        row.appendChild(check);
+        row.appendChild(main);
+        row.appendChild(actions);
+
+        listEl.appendChild(row);
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress(){
+      const total = activeState.items.length;
+      const done = activeState.items.reduce((acc, it) => acc + (it.done ? 1 : 0), 0);
+      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+      barFill.style.width = pct + "%";
+      progressBadge.textContent = `${done} / ${total}`;
+      progressPct.textContent = `${pct}% complete`;
+    }
+
+    function toggleItem(id){
+      const idx = activeState.items.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      activeState.items[idx].done = !activeState.items[idx].done;
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    function removeItem(id){
+      const idx = activeState.items.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      activeState.items.splice(idx, 1);
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    function addItem(text){
+      const t = (text ?? "").trim();
+      if (!t) return;
+
+      activeState.items.push({
+        id: cryptoRandomId(activeCompanyId + "_custom"),
+        text: t,
+        done: false
+      });
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    function markAllComplete(){
+      activeState.items.forEach(i => i.done = true);
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    function resetChecks(){
+      activeState.items.forEach(i => i.done = false);
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    function resetAll(){
+      activeState = makeDefaultState(activeCompanyId);
+      saveCompanyState(activeCompanyId, activeState);
+      render();
+    }
+
+    document.querySelectorAll(".companyBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const companyId = btn.getAttribute("data-company");
+        window.location.hash = `company=${encodeURIComponent(companyId)}`;
+      });
+    });
+
+    backBtn.addEventListener("click", goHome);
+    markAllBtn.addEventListener("click", markAllComplete);
+    resetChecksBtn.addEventListener("click", resetChecks);
+    resetAllBtn.addEventListener("click", resetAll);
+
+    addItemBtn.addEventListener("click", () => {
+      addItem(newItemInput.value);
+      newItemInput.value = "";
+      newItemInput.focus();
+    });
+
+    newItemInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        addItem(newItemInput.value);
+        newItemInput.value = "";
+      }
+    });
+
+    // initial route
+    onHashChange();
+  </script>
+</body>
+</html>
