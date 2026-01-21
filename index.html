@@ -368,6 +368,7 @@
       background: rgba(37,99,235,.10);
     }
 
+    /* Photos (multi) */
     .photoRow{
       margin-top: 10px;
       display: flex;
@@ -456,6 +457,7 @@
     }
     .hide{ display:none !important; }
 
+    /* Modal preview */
     .modalOverlay{
       position: fixed;
       inset: 0;
@@ -505,6 +507,7 @@
       display:block;
     }
 
+    /* PDF Sandbox */
     .pdfSandbox{
       position: fixed;
       left: -99999px;
@@ -532,6 +535,7 @@
       color: rgba(15,23,42,.70);
     }
 
+    /* PDF mode: full-size photos */
     .pdfMode .itemActions,
     .pdfMode .addBox,
     .pdfMode #pdfTip,
@@ -599,7 +603,7 @@
 
         <button class="companyBtn" data-company="bluestar">
           <div>
-            <p class="companyName">Blue star</p>
+            <p class="companyName">Bluestar</p>
             <p class="companyMeta">Completion list</p>
           </div>
         </button>
@@ -669,7 +673,7 @@
 
   <script>
     /***********************
-     * UPDATED CHECKLISTS (per your new PDF)
+     * DEFAULT CHECKLISTS (UPDATED TO MATCH YOUR PDF)
      ***********************/
     const DEFAULTS = {
       smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
@@ -687,7 +691,8 @@
         "Installed Stairs/elevator openings patched; divider beams installed.",
         "Recesses complete; edges sound; dimensions match coordination.",
         "Remove temporary rails, toe boards, netting; patch anchor holes.",
-        "Clean all structural surfaces."
+        "Clean all structural surfaces.",
+        "Crash walls installed per plans; verify reinforcement, embeds, alignment, elevations, and concrete finish sound."
       ]},
       spi: { name: "SPI", subtitle: "Completion Checklist", items: [
         "Remove temporary decking sheets, erection angles/kickers, safety tabs.",
@@ -717,7 +722,9 @@
     /***********************
      * STATE + ELEMENTS
      ***********************/
-    const KEY_PREFIX = "lightspeed_checklist_v1:";
+    // IMPORTANT: bumped version to force all browsers to load the new defaults
+    const KEY_PREFIX = "lightspeed_checklist_v2:";
+
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
     const listEl = document.getElementById("list");
@@ -824,7 +831,11 @@
     async function addPhoto(companyId, itemId, dataUrl){
       const key = photoKey(companyId, itemId);
       const arr = await getPhotos(key);
-      const newPhoto = { id: cryptoRandomId("p"), dataUrl, ts: Date.now() };
+      const newPhoto = {
+        id: cryptoRandomId("p"),
+        dataUrl,
+        ts: Date.now()
+      };
       arr.push(newPhoto);
       await setPhotos(key, arr);
       return newPhoto;
@@ -882,8 +893,10 @@
       window.location.hash = "";
       activeCompanyId = null;
       activeState = null;
+
       checklistView.classList.add("hide");
       landing.classList.remove("hide");
+
       setLandingCentered(true);
     }
 
@@ -891,11 +904,14 @@
       if (!DEFAULTS[companyId]) return;
 
       activeCompanyId = companyId;
+
+      // With v2 prefix, this will load new defaults for everyone
       activeState = loadCompanyState(companyId) ?? makeDefaultState(companyId);
       saveCompanyState(companyId, activeState);
 
       landing.classList.add("hide");
       checklistView.classList.remove("hide");
+
       setLandingCentered(false);
 
       companyTitleEl.textContent = DEFAULTS[companyId].name + " — Completion List";
@@ -920,6 +936,7 @@
      ***********************/
     async function render(){
       if (!activeState) return;
+
       listEl.innerHTML = "";
 
       for (const item of activeState.items){
