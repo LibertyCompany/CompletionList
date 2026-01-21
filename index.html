@@ -113,7 +113,7 @@
 
     .companyGrid{
       display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
+      grid-template-columns: repeat(2, minmax(0,1fr));
       gap: 14px;
       padding: 18px;
       justify-items: center;
@@ -368,7 +368,6 @@
       background: rgba(37,99,235,.10);
     }
 
-    /* Photos (multi) */
     .photoRow{
       margin-top: 10px;
       display: flex;
@@ -457,7 +456,6 @@
     }
     .hide{ display:none !important; }
 
-    /* Modal preview */
     .modalOverlay{
       position: fixed;
       inset: 0;
@@ -507,7 +505,6 @@
       display:block;
     }
 
-    /* PDF Sandbox */
     .pdfSandbox{
       position: fixed;
       left: -99999px;
@@ -535,7 +532,6 @@
       color: rgba(15,23,42,.70);
     }
 
-    /* PDF mode: full-size photos */
     .pdfMode .itemActions,
     .pdfMode .addBox,
     .pdfMode #pdfTip,
@@ -607,6 +603,13 @@
             <p class="companyMeta">Completion list</p>
           </div>
         </button>
+
+        <button class="companyBtn" data-company="floridaconcreteunlimited">
+          <div>
+            <p class="companyName">Florida Concrete Unlimited</p>
+            <p class="companyMeta">Completion list</p>
+          </div>
+        </button>
       </div>
     </section>
 
@@ -665,9 +668,6 @@
   </div>
 
   <script>
-    /***********************
-     * DEFAULT CHECKLISTS
-     ***********************/
     const DEFAULTS = {
       smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
         "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
@@ -687,11 +687,14 @@
         "Drains/RWL openings formed correctly; no accidental cores.",
         "Install sealant at slab edges and joints; penetration collars complete.",
         "Remove temporary rails, toe boards, netting; patch anchor holes.",
-        "Remove curing compounds; clean all structural surfaces."
+        "Verify TOS/TOB elevations; provide as-built survey.",
+        "Remove curing compounds; clean all structural surfaces.",
+        "Compile concrete test reports; close NCRs; deliver as-builts."
       ]},
       spi: { name: "SPI", subtitle: "Completion Checklist", items: [
         "Remove temporary decking sheets, erection angles/kickers, safety tabs.",
         "Remove or grind flush weld tabs, lifting eyes, temporary embed plates; protect bare steel.",
+        "Verify bearing lengths; correct short-bearings; log corrections.",
         "Fully grout pockets and shear keys; no voids.",
         "Replace temporary shim packs with permanent shims/grout.",
         "Confirm joist alignment and camber; remedial grind/topping if needed.",
@@ -702,13 +705,23 @@
       bluestar: { name: "Blue star", subtitle: "Completion Checklist", items: [
         "Verify all lap splices, hooks, and dowels remain intact after remedial work.",
         "Protect any rebar exposed during patching; re-encase per engineer’s direction.",
-        "Ensure anchor holes near reinforcement are epoxy-filled or grouted."
+        "Ensure anchor holes near reinforcement are epoxy-filled or grouted.",
+        "Provide final reinforcement inspection sign-off.",
+        "Submit photo documentation of congestion areas and critical details."
+      ]},
+      floridaconcreteunlimited: { name: "Florida Concrete Unlimited", subtitle: "Completion Checklist", items: [
+        "Confirm concrete placed to correct elevations, thickness, and slopes.",
+        "Finish slab/ramp surfaces uniformly; no dips or defects.",
+        "Meet FF/FL or equivalent finish tolerances.",
+        "Finish slab edges, joints, recesses clean and accurate.",
+        "Verify drainage; no ponding.",
+        "Repair minor finish defects (bugholes, chips, small spalls).",
+        "Apply curing correctly (if in scope) and protect slab.",
+        "Clean finished surfaces; remove slurry and debris.",
+        "Provide pour logs and finishing/curing documentation."
       ]}
     };
 
-    /***********************
-     * STATE + ELEMENTS
-     ***********************/
     const KEY_PREFIX = "lightspeed_checklist_v1:";
     const landing = document.getElementById("landing");
     const checklistView = document.getElementById("checklistView");
@@ -766,10 +779,7 @@
       };
     }
 
-    /***********************
-     * PHOTO STORAGE (IndexedDB)
-     * Multi-photo per item: store array of {id, dataUrl, ts}
-     ***********************/
+    // IndexedDB photo storage (multi per item)
     const DB_NAME = "lightspeed_photos_db";
     const DB_STORE = "photos";
 
@@ -849,9 +859,7 @@
       });
     }
 
-    /***********************
-     * MODAL PREVIEW
-     ***********************/
+    // Modal preview
     const photoModal = document.getElementById("photoModal");
     const photoModalImg = document.getElementById("photoModalImg");
     const photoModalClose = document.getElementById("photoModalClose");
@@ -872,9 +880,6 @@
       if (e.key === "Escape") closePhotoModal();
     });
 
-    /***********************
-     * ROUTING
-     ***********************/
     function goHome(){
       window.location.hash = "";
       activeCompanyId = null;
@@ -915,9 +920,6 @@
     }
     window.addEventListener("hashchange", onHashChange);
 
-    /***********************
-     * RENDER
-     ***********************/
     async function render(){
       if (!activeState) return;
 
@@ -943,7 +945,6 @@
         p.textContent = item.text;
         main.appendChild(p);
 
-        // Photo area (multi)
         const photoRow = document.createElement("div");
         photoRow.className = "photoRow";
         main.appendChild(photoRow);
@@ -1004,7 +1005,6 @@
         removeBtn.textContent = "Remove item";
         removeBtn.addEventListener("click", (e) => { e.stopPropagation(); removeItem(item.id); });
 
-        // single hidden input per item (used repeatedly)
         const fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.accept = "image/*";
@@ -1020,7 +1020,6 @@
           const file = fileInput.files?.[0];
           if (!file) return;
 
-          // Instant thumbnail preview (before DB write)
           const tempUrl = URL.createObjectURL(file);
 
           const tempWrap = document.createElement("div");
@@ -1040,7 +1039,6 @@
           tempDel.type = "button";
           tempDel.title = "Remove photo";
           tempDel.textContent = "×";
-          // If they delete immediately before save finishes, just remove the temp node
           tempDel.addEventListener("click", (e) => {
             e.stopPropagation();
             tempWrap.remove();
@@ -1051,11 +1049,9 @@
           tempWrap.appendChild(tempDel);
           photoRow.appendChild(tempWrap);
 
-          // Save permanently to IndexedDB
           const dataUrl = await fileToDataUrl(file);
           await addPhoto(activeCompanyId, item.id, dataUrl);
 
-          // Cleanup temp object URL and re-render so delete buttons target real IDs
           URL.revokeObjectURL(tempUrl);
           fileInput.value = "";
           await render();
@@ -1090,9 +1086,6 @@
       progressPct.textContent = `${pct}% complete`;
     }
 
-    /***********************
-     * ACTIONS
-     ***********************/
     function toggleItem(id){
       const idx = activeState.items.findIndex(i => i.id === id);
       if (idx === -1) return;
@@ -1145,9 +1138,6 @@
         });
     }
 
-    /***********************
-     * PDF EXPORT (Full-size, includes ALL photos)
-     ***********************/
     function pad2(n){ return String(n).padStart(2, "0"); }
     function formatDateTime(d){
       return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
@@ -1175,7 +1165,6 @@
         </div>
       `;
 
-      // Clone the list and force images to full width via PDF CSS
       const listClone = listEl.cloneNode(true);
       sandbox.appendChild(listClone);
 
@@ -1224,9 +1213,6 @@
       pdf.save(fileName);
     }
 
-    /***********************
-     * EVENTS
-     ***********************/
     document.querySelectorAll(".companyBtn").forEach(btn => {
       btn.addEventListener("click", () => {
         const companyId = btn.getAttribute("data-company");
@@ -1254,7 +1240,6 @@
       }
     });
 
-    // Initial route
     onHashChange();
   </script>
 </body>
