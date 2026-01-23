@@ -2,1269 +2,793 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Lightspeed Project Completion List</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>One Liberty Meeting Agenda</title>
 
-  <!-- PDF Export Libraries (client-side, works on GitHub Pages) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- PDF engine (GitHub Pages friendly) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     :root{
-      --bg0:#f8fafc;
-      --bg1:#eef2ff;
-      --card:#ffffff;
-      --stroke: rgba(15,23,42,.10);
-      --stroke2: rgba(15,23,42,.16);
-      --text:#0f172a;
-      --muted: rgba(15,23,42,.72);
-      --muted2: rgba(15,23,42,.55);
-      --accent:#2563eb;
-      --accent2:#7c3aed;
-      --good:#16a34a;
-      --bad:#e11d48;
-      --shadow: 0 14px 40px rgba(2,6,23,.10);
-      --radius: 18px;
-      --radius2: 14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --navy:#092041;
+      --navy2:#06162f;
+      --red:#C62241;
+      --white:#ffffff;
+
+      --ink:#eaf0ff;
+      --muted: rgba(234,240,255,.72);
+
+      --glass: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.16);
+      --shadow: 0 18px 70px rgba(0,0,0,.40);
+      --radius: 22px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
     *{ box-sizing:border-box; }
+    html,body{ height:100%; }
 
     body{
       margin:0;
       font-family: var(--sans);
-      color: var(--text);
+      color: var(--ink);
       background:
-        radial-gradient(900px 600px at 18% 10%, rgba(37,99,235,.16), transparent 55%),
-        radial-gradient(800px 520px at 90% 20%, rgba(124,58,237,.12), transparent 55%),
-        radial-gradient(900px 700px at 50% 100%, rgba(22,163,74,.08), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      min-height:100vh;
-
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-    }
-    body.landing-center{ align-items:center; }
-
-    .wrap{
-      width: min(980px, 100%);
-      padding: 26px 18px 64px;
-    }
-    body.landing-center .wrap{ padding: 18px 18px; }
-
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
-      margin-bottom: 14px;
-      text-align:center;
-      user-select:none;
-    }
-    .dot{
-      width: 14px; height: 14px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 0 6px rgba(37,99,235,.10), 0 0 24px rgba(124,58,237,.14);
-    }
-    .brandText{
-      font-size: 13px;
-      margin:0;
-      letter-spacing:.8px;
-      text-transform: uppercase;
-      color: rgba(15,23,42,.75);
+        radial-gradient(1200px 800px at 15% 10%, rgba(198,34,65,.20), transparent 60%),
+        radial-gradient(1100px 780px at 85% 10%, rgba(255,255,255,.10), transparent 62%),
+        radial-gradient(1200px 800px at 55% 115%, rgba(198,34,65,.12), transparent 60%),
+        linear-gradient(180deg, #07162f 0%, #06122a 50%, #060f24 100%);
+      overflow-x:hidden;
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    /* ===== Background: One Liberty motion system ===== */
+    .bg{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow:hidden; }
+    .bgWord{
+      position:absolute; left:50%; top:52%;
+      transform: translate(-50%,-50%) rotate(-12deg);
+      font-weight:900; letter-spacing:.38em; text-transform:uppercase;
+      font-size: clamp(72px, 10vw, 160px);
+      color: rgba(255,255,255,.06);
+      white-space:nowrap;
+      will-change: transform;
+      animation: drift 18s ease-in-out infinite;
+    }
+    @keyframes drift{
+      0%{ transform: translate(-50%,-50%) rotate(-12deg) translateX(-12px); }
+      50%{ transform: translate(-50%,-50%) rotate(-12deg) translateX(12px); }
+      100%{ transform: translate(-50%,-50%) rotate(-12deg) translateX(-12px); }
+    }
+
+    /* ===== Layout ===== */
+    .wrap{ position:relative; z-index: 1; width:min(1200px,100%); margin:0 auto; padding:26px 16px 80px; }
+
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; user-select:none; }
+
+    .brand{
+      display:flex; gap:12px; align-items:center; cursor:pointer;
+      padding:10px 14px; border-radius:18px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .mark{ width:42px; height:42px; border-radius:14px; background: linear-gradient(135deg,var(--navy),var(--red)); }
+
+    .brandText .kicker{
+      font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+      color:var(--muted); text-transform:uppercase;
+    }
+    .brandText .title{ font-size:16px; font-weight:900; letter-spacing:-.01em; color:var(--white); }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{
+      cursor:pointer; border-radius:14px; padding:10px 14px;
+      background:rgba(255,255,255,.06); color:var(--white);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:13px; font-weight:800; letter-spacing:.02em;
+    }
+    .btn.red{ background:rgba(198,34,65,.22); border-color:rgba(198,34,65,.6); }
+
+    .layout{ display:grid; grid-template-columns:360px 1fr; gap:14px; align-items:start; }
+    @media(max-width:960px){ .layout{ grid-template-columns:1fr; } }
+
+    .panel{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       overflow:hidden;
-      margin: 0 auto;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     }
-    .cardInner{ padding: 22px; text-align:center; }
 
     .hero{
-      padding: 28px 22px;
-      border-bottom: 1px solid var(--stroke);
+      padding:18px;
+      border-bottom:1px solid rgba(255,255,255,.14);
       background:
-        radial-gradient(700px 280px at 10% 10%, rgba(37,99,235,.12), transparent 55%),
-        radial-gradient(640px 260px at 85% 0%, rgba(124,58,237,.10), transparent 60%),
-        rgba(255,255,255,.60);
-      text-align:center;
+        radial-gradient(650px 260px at 0% 10%, rgba(198,34,65,.22), transparent 62%),
+        radial-gradient(650px 260px at 100% 0%, rgba(255,255,255,.10), transparent 62%),
+        linear-gradient(135deg, rgba(9,32,65,.18), rgba(198,34,65,.10));
     }
-    .heroTitle{
-      font-size: 34px;
-      line-height: 1.1;
-      margin: 0 0 10px 0;
-      letter-spacing: -.5px;
-    }
-    .heroSub{
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-      max-width: 72ch;
-    }
+    .hero h1{ margin:0 0 8px; font-size:22px; font-weight:900; color:rgba(255,255,255,.95); }
 
-    .companyGrid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 14px;
-      padding: 18px;
-      justify-items: center;
+    .chip{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.20);
+      background:rgba(255,255,255,.08);
+      margin-right:6px;
+      display:inline-block;
     }
-    @media (max-width: 860px){
-      .companyGrid{ grid-template-columns: 1fr; }
-      .heroTitle{ font-size: 28px; }
-    }
+    .chip.red{ background:rgba(198,34,65,.25); border-color:rgba(198,34,65,.6); }
 
-    .companyBtn{
-      cursor:pointer;
-      width: 100%;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.88);
-      border-radius: 16px;
-      padding: 18px 16px;
-      text-align:center;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
-      min-height: 96px;
-      box-shadow: 0 10px 26px rgba(2,6,23,.06);
+    .nav{ padding:12px; display:flex; flex-direction:column; gap:10px; }
+    .navItem{
+      text-align:left; cursor:pointer; padding:12px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.05);
+      color:var(--white);
+      font-weight:850;
+      letter-spacing:-.01em;
     }
-    .companyBtn:hover{
-      transform: translateY(-1px);
-      border-color: var(--stroke2);
-      background: rgba(255,255,255,.96);
-      box-shadow: 0 14px 32px rgba(2,6,23,.10);
-    }
-    .companyName{
-      font-size: 16px;
-      margin: 0 0 6px 0;
-      letter-spacing:.2px;
-    }
-    .companyMeta{
-      margin:0;
-      color: var(--muted2);
-      font-size: 12px;
-      line-height: 1.4;
-    }
+    .navItem.active{ background:rgba(198,34,65,.25); border-color:rgba(198,34,65,.7); }
 
-    .toolbar{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-      text-align:center;
-    }
-    .titleBlock{ width: 100%; text-align:center; }
-    .titleBlock h2{
-      margin:0 0 6px 0;
-      font-size: 22px;
-      letter-spacing:-.2px;
-    }
-    .titleBlock p{
-      margin:0 auto;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-      max-width: 78ch;
-    }
+    .content{ padding:18px; animation:fade .28s ease; }
+    @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
-    .btnRow{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .btn{
-      cursor:pointer;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.88);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      display:flex;
-      gap: 8px;
-      align-items:center;
-      transition: border-color .12s ease, background .12s ease, transform .12s ease, box-shadow .12s ease;
-      user-select:none;
-      box-shadow: 0 10px 24px rgba(2,6,23,.06);
-    }
-    .btn:hover{
-      border-color: var(--stroke2);
-      background: rgba(255,255,255,.96);
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(2,6,23,.10);
-    }
-    .btn.danger{
-      border-color: rgba(225,29,72,.20);
-      background: rgba(225,29,72,.08);
-    }
-    .btn.danger:hover{
-      border-color: rgba(225,29,72,.36);
-      background: rgba(225,29,72,.10);
-    }
-    .btn.good{
-      border-color: rgba(22,163,74,.20);
-      background: rgba(22,163,74,.08);
-    }
-    .btn.good:hover{
-      border-color: rgba(22,163,74,.36);
-      background: rgba(22,163,74,.10);
-    }
+    .sectionTitle{ font-size:24px; font-weight:950; margin:0 0 6px; }
+    .sectionLead{ color:var(--muted); margin:0 0 14px; line-height:1.6; }
 
-    .progressWrap{
-      margin: 14px auto 18px;
-      border: 1px solid var(--stroke);
-      border-radius: 14px;
-      padding: 12px 12px;
-      background: rgba(255,255,255,.78);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 12px;
-      flex-wrap: wrap;
-      text-align:center;
-      box-shadow: 0 10px 24px rgba(2,6,23,.06);
+    .block{
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:16px;
+      padding:14px;
+      margin-bottom:12px;
+      background:rgba(255,255,255,.05);
     }
-    .bar{
-      width: min(560px, 100%);
-      height: 10px;
-      border-radius: 999px;
-      overflow:hidden;
-      background: rgba(2,6,23,.06);
-      border: 1px solid rgba(15,23,42,.08);
+    .block h3{
+      margin:0 0 8px;
+      font-size:12px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.90);
     }
-    .bar > div{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, var(--accent), var(--good));
-      transition: width .18s ease;
-    }
-    .progressText{
-      font-size: 12px;
-      color: var(--muted);
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      justify-content:center;
-      white-space: nowrap;
-    }
-    .badge{
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(2,6,23,.03);
-      color: rgba(15,23,42,.86);
-    }
+    .list{ margin:0; padding-left:18px; }
+    .list li{ margin:6px 0; line-height:1.65; }
+    .emptyNote{ color: rgba(234,240,255,.55); font-size:13px; line-height:1.6; }
 
-    .list{
+    /* ===== Landing ===== */
+    .landing{
+      min-height:520px;
       display:flex;
       flex-direction:column;
-      gap: 10px;
-      align-items: center;
-    }
-    .item{
-      width: 100%;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.86);
-      border-radius: var(--radius2);
-      padding: 12px 12px;
-      display:flex;
-      align-items:flex-start;
-      gap: 12px;
-      text-align:left;
-      box-shadow: 0 10px 22px rgba(2,6,23,.05);
-    }
-    .item.completed{
-      border-color: rgba(22,163,74,.22);
-      background: rgba(22,163,74,.06);
-    }
-    .check{
-      width: 18px; height: 18px;
-      border-radius: 6px;
-      border: 1px solid rgba(15,23,42,.16);
-      background: rgba(2,6,23,.03);
-      display:grid;
-      place-items:center;
-      margin-top: 2px;
-      flex: 0 0 auto;
-      cursor: pointer;
-    }
-    .item.completed .check{
-      border-color: rgba(22,163,74,.35);
-      background: rgba(22,163,74,.16);
-    }
-    .check svg{ opacity:0; }
-    .item.completed .check svg{ opacity:1; }
-
-    .itemMain{ flex: 1 1 auto; cursor: pointer; }
-    .itemText{
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.5;
-      color: rgba(15,23,42,.92);
-    }
-    .item.completed .itemText{
-      color: rgba(15,23,42,.62);
-      text-decoration: line-through;
-      text-decoration-thickness: 1px;
-      text-decoration-color: rgba(15,23,42,.25);
-    }
-
-    .itemActions{
-      display:flex;
-      gap: 8px;
-      flex: 0 0 auto;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .mini{
-      cursor:pointer;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.88);
-      color: rgba(15,23,42,.92);
-      padding: 8px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
-      user-select:none;
-      white-space: nowrap;
-      box-shadow: 0 10px 20px rgba(2,6,23,.05);
-    }
-    .mini:hover{
-      transform: translateY(-1px);
-      border-color: rgba(15,23,42,.16);
-      background: rgba(255,255,255,.96);
-      box-shadow: 0 14px 26px rgba(2,6,23,.08);
-    }
-    .mini.remove{
-      border-color: rgba(225,29,72,.18);
-      background: rgba(225,29,72,.08);
-    }
-    .mini.remove:hover{
-      border-color: rgba(225,29,72,.30);
-      background: rgba(225,29,72,.10);
-    }
-    .mini.photo{
-      border-color: rgba(37,99,235,.18);
-      background: rgba(37,99,235,.08);
-    }
-    .mini.photo:hover{
-      border-color: rgba(37,99,235,.28);
-      background: rgba(37,99,235,.10);
-    }
-
-    /* Photos (multi) */
-    .photoRow{
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-    .thumbWrap{
-      position: relative;
-      width: 84px;
-    }
-    .thumb{
-      width: 84px;
-      height: 84px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(2,6,23,.03);
-      box-shadow: 0 10px 18px rgba(2,6,23,.06);
-      cursor: pointer;
-      display:block;
-    }
-    .thumbDel{
-      position:absolute;
-      right: -6px;
-      top: -6px;
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: 1px solid rgba(225,29,72,.22);
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 10px 18px rgba(2,6,23,.08);
-      cursor:pointer;
-      display:grid;
-      place-items:center;
-      font-size: 14px;
-      line-height: 1;
-      user-select:none;
-    }
-    .thumbDel:hover{
-      border-color: rgba(225,29,72,.34);
-      background: rgba(255,255,255,.98);
-    }
-
-    .addBox{
-      margin: 14px auto 0;
-      border: 1px dashed rgba(15,23,42,.18);
-      background: rgba(255,255,255,.78);
-      border-radius: 16px;
-      padding: 14px;
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
       justify-content:center;
-      box-shadow: 0 10px 22px rgba(2,6,23,.05);
-    }
-    .addBox input{
-      flex: 1 1 420px;
-      min-width: 220px;
-      background: rgba(255,255,255,.96);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 12px;
-      padding: 12px 12px;
-      color: var(--text);
-      font-size: 13px;
-      outline:none;
-    }
-    .addBox input::placeholder{ color: rgba(15,23,42,.45); }
-
-    .footerNote{
-      margin-top: 16px;
-      color: rgba(15,23,42,.55);
-      font-size: 12px;
-      line-height: 1.6;
+      align-items:center;
       text-align:center;
+      padding: 24px 10px;
     }
-    .kbd{
-      font-family: var(--mono);
-      border: 1px solid rgba(15,23,42,.14);
-      background: rgba(2,6,23,.03);
-      padding: 2px 8px;
-      border-radius: 9px;
-      color: rgba(15,23,42,.78);
-      font-size: 12px;
+    .landingTitle{
+      font-size:clamp(48px,6vw,76px);
+      font-weight:950;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      margin:0;
     }
-    .hide{ display:none !important; }
+    .landingSub{
+      margin:10px 0 0;
+      color:rgba(234,240,255,.74);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      font-size:14px;
+    }
+    .startBtn{
+      margin-top:18px;
+      padding:16px 22px;
+      border-radius:18px;
+      background:linear-gradient(135deg,var(--red),var(--navy));
+      border:1px solid rgba(198,34,65,.7);
+      color:white;
+      font-weight:900;
+      cursor:pointer;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
 
-    /* Modal preview */
-    .modalOverlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 9999;
+    /* ================= PDF LAYOUT (dedicated DOM) ================= */
+    .pdfRoot{
+      width: 8.5in;
+      background:#fff;
+      color:#000;
+      font-family: var(--sans);
     }
-    .modalOverlay.open{ display:flex; }
 
-    .modalCard{
-      width: min(960px, 100%);
-      background: rgba(255,255,255,.96);
-      border: 1px solid rgba(15,23,42,.14);
-      border-radius: 18px;
-      box-shadow: 0 24px 80px rgba(2,6,23,.22);
+    .pdfPage{
+      width: 8.5in;
+      min-height: 11in;
+      padding: 0.6in;
+      background:#fff;
+
+      /* one section per page */
+      page-break-after: always;
+      break-after: page;
+
       overflow: hidden;
     }
-    .modalTop{
+    .pdfPage:last-child{ page-break-after: auto; break-after: auto; }
+
+    .pdfHeader{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(15,23,42,.10);
-    }
-    .modalTitle{
-      font-size: 13px;
-      color: rgba(15,23,42,.70);
-      margin: 0;
-    }
-    .modalClose{
-      cursor:pointer;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.90);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 13px;
-    }
-    .modalImg{
-      width: 100%;
-      max-height: 78vh;
-      object-fit: contain;
-      background: rgba(2,6,23,.03);
-      display:block;
-    }
-
-    /* PDF Sandbox */
-    .pdfSandbox{
-      position: fixed;
-      left: -99999px;
-      top: 0;
-      width: 980px;
-      background: #ffffff;
-      color: #0f172a;
-      padding: 18px;
-      z-index: -1;
-    }
-    .pdfHeader{
-      text-align: center;
-      margin-bottom: 12px;
+      justify-content:space-between;
+      gap: 14px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(15,23,42,.10);
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e6e9f2;
     }
-    .pdfHeader h1{
-      font-size: 20px;
-      margin: 0 0 6px 0;
-      letter-spacing: -.2px;
+
+    .pdfHeaderLeft{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
     }
-    .pdfHeader p{
+
+    .pdfLogo{
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 1px solid #eef1f8;
+      background:#fff;
+      flex: 0 0 auto;
+    }
+
+    .pdfHeaderText{ display:flex; flex-direction:column; gap: 4px; min-width: 0; }
+    .pdfDocTitle{
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--navy);
+      letter-spacing: -.01em;
       margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 5.2in;
+    }
+    .pdfSectionTitle{
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 5.2in;
+    }
+
+    .pdfHeaderRight{
+      text-align:right;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #24334a;
+      line-height: 1.45;
+      white-space: nowrap;
+    }
+
+    .pdfDivider{
+      height: 4px;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--navy), var(--red), var(--navy));
+      margin: 0 0 14px;
+    }
+
+    .pdfLead{
       font-size: 12px;
-      color: rgba(15,23,42,.70);
+      color: #2a3a54;
+      margin: 0 0 14px;
+      line-height: 1.55;
     }
 
-    /* PDF mode: full-size photos */
-    .pdfMode .itemActions,
-    .pdfMode .addBox,
-    .pdfMode #pdfTip,
-    .pdfMode .btnRow,
-    .pdfMode .top,
-    .pdfMode input,
-    .pdfMode button{
-      display: none !important;
-    }
-    .pdfMode .itemMain{ cursor: default; }
-    .pdfMode .check{ cursor: default; }
+    .pdfBlock{
+      border: 1px solid #e9edf6;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #ffffff;
 
-    .pdfMode .photoRow{
-      width: 100% !important;
-      display: block !important;
-      margin-top: 10px !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
-    .pdfMode .thumbWrap{
-      width: 100% !important;
-      margin: 10px 0 !important;
+    .pdfBlock h3{
+      margin: 0 0 8px;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--navy);
     }
-    .pdfMode .thumb{
-      width: 100% !important;
-      height: auto !important;
-      max-height: 640px !important;
-      object-fit: contain !important;
-      border-radius: 14px !important;
-      display:block !important;
-      box-shadow: none !important;
+    .pdfBlock ul{
+      margin: 0;
+      padding-left: 18px;
+      color: #111b2c;
+      font-size: 12px;
+      line-height: 1.6;
     }
-    .pdfMode .thumbDel{
-      display:none !important;
-    }
+    .pdfBlock li{ margin: 5px 0; }
   </style>
 </head>
 
-<body class="landing-center">
-  <div class="wrap">
-    <div class="top">
-      <div class="dot"></div>
-      <p class="brandText">LIGHTSPEED</p>
-    </div>
-
-    <!-- LANDING -->
-    <section id="landing" class="card">
-      <div class="hero">
-        <h2 class="heroTitle">Lightspeed Project Completion List</h2>
-        <p class="heroSub">Select your company to view and manage your completion checklist.</p>
-      </div>
-
-      <div class="companyGrid">
-        <button class="companyBtn" data-company="smith">
-          <div>
-            <p class="companyName">Smith Construction</p>
-            <p class="companyMeta">Completion list</p>
-          </div>
-        </button>
-
-        <button class="companyBtn" data-company="spi">
-          <div>
-            <p class="companyName">SPI</p>
-            <p class="companyMeta">Completion list</p>
-          </div>
-        </button>
-
-        <button class="companyBtn" data-company="bluestar">
-          <div>
-            <p class="companyName">Bluestar</p>
-            <p class="companyMeta">Completion list</p>
-          </div>
-        </button>
-
-        <button class="companyBtn" data-company="floridaconcreteunlimited">
-          <div>
-            <p class="companyName">Florida Concrete Unlimited</p>
-            <p class="companyMeta">Completion list</p>
-          </div>
-        </button>
-      </div>
-    </section>
-
-    <!-- CHECKLIST VIEW -->
-    <section id="checklistView" class="card hide" style="margin-top:18px;">
-      <div class="cardInner" id="checklistInner">
-        <div class="toolbar">
-          <div class="titleBlock">
-            <h2 id="companyTitle">Company Checklist</h2>
-            <p id="companySub">Mark items complete or not complete. Add/remove items and photos as needed.</p>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn" id="backBtn">← Back</button>
-            <button class="btn good" id="downloadPdfBtn">⬇ Download PDF</button>
-            <button class="btn good" id="markAllBtn">✓ Mark all complete</button>
-            <button class="btn" id="resetChecksBtn">↺ Reset checks</button>
-            <button class="btn danger" id="resetAllBtn">🗑 Reset checklist</button>
-          </div>
-        </div>
-
-        <div class="progressWrap">
-          <div class="bar" aria-label="Progress">
-            <div id="barFill"></div>
-          </div>
-          <div class="progressText">
-            <span class="badge" id="progressBadge">0 / 0</span>
-            <span id="progressPct">0% complete</span>
-          </div>
-        </div>
-
-        <div id="list" class="list" aria-live="polite"></div>
-
-        <div class="addBox">
-          <input id="newItemInput" type="text" placeholder="Add a new checklist point (press Enter to add)" />
-          <button class="btn" id="addItemBtn">＋ Add point</button>
-        </div>
-
-        <div class="footerNote" id="pdfTip">
-          Photos are saved <strong>locally on this device</strong> only (no submissions).
-          Tap a photo to view full-size. Press <span class="kbd">Esc</span> to close.
-        </div>
-      </div>
-    </section>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="bgWord">ONE LIBERTY</div>
   </div>
 
-  <!-- Photo preview modal -->
-  <div id="photoModal" class="modalOverlay" role="dialog" aria-modal="true">
-    <div class="modalCard">
-      <div class="modalTop">
-        <p class="modalTitle">Photo preview</p>
-        <button id="photoModalClose" class="modalClose">Close</button>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand" id="homeBtn" tabindex="0" role="button" title="Go to start">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="brandText">
+          <div class="kicker">LIGHTSPEED • ONE LIBERTY</div>
+          <div class="title">Meeting Agenda</div>
+        </div>
       </div>
-      <img id="photoModalImg" class="modalImg" alt="Photo preview" />
-    </div>
+
+      <div class="actions">
+        <button class="btn" id="copyLinkBtn">Copy Link</button>
+        <button class="btn red" id="pdfSectionBtn">PDF Section</button>
+        <button class="btn red" id="pdfAllBtn">PDF Full</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="hero">
+          <h1 id="heroTitle">One Liberty Meeting Agenda</h1>
+          <div>
+            <span class="chip" id="timeChip">9:00 AM</span>
+            <span class="chip" id="dateChip">01/23/2026</span>
+            <span class="chip red" id="sectionChip">Start</span>
+          </div>
+        </div>
+        <nav class="nav" id="nav"></nav>
+      </aside>
+
+      <main class="panel">
+        <div class="content" id="content"></div>
+      </main>
+    </section>
   </div>
 
   <script>
-    /***********************
-     * DEFAULT CHECKLISTS (UPDATED TO MATCH YOUR PDF)
-     ***********************/
-    const DEFAULTS = {
-      smith: { name: "Smith Construction", subtitle: "Completion Checklist", items: [
-        "Remove all formwork, shores, reshoring, falsework per engineer’s sequence.",
-        "Patch all tie-holes, form-tie cone holes, chamfer voids; grind off fins; ensure uniform finish.",
-        "Repair honeycombs, voids, blowouts with approved materials; finish to match adjacent concrete.",
-        "Address surface defects (bugholes, fins, small spalls); restore sharp arrises at slab edges/openings.",
-        "Treat cold joints as directed; verify no open cracks at joints.",
-        "Repair/remove all excess form oil from all surfaces",
-        "Correct slab high/low spots impacting drainage or transitions.",
-        "Ensure column faces plumb; grout pads sound.",
-        "Confirm all embeds are installed per plan. Submit as-built for missing or misplaced",
-        "Ramp slopes; eliminate ponding; feather transitions.",
-        "Verify CIP curbs straight; repair chips/spalls.",
-        "Installed Stairs/elevator openings patched; divider beams installed.",
-        "Recesses complete; edges sound; dimensions match coordination.",
-        "Remove temporary rails, toe boards, netting; patch anchor holes.",
-        "Clean all structural surfaces.",
-        "Crash walls installed per plans; verify reinforcement, embeds, alignment, elevations, and concrete finish sound."
-      ]},
-      spi: { name: "SPI", subtitle: "Completion Checklist", items: [
-        "Remove temporary decking sheets, erection angles/kickers, safety tabs.",
-        "Remove or grind flush temporary fasteners",
-        "Fully grout pockets and shear keys; no voids.",
-        "Replace temporary shim packs with permanent shims/grout.",
-        "Remove temporary anchors; fill holes with grout.",
-        "Leave undersides/deck soffits free of debris and protrusions."
-      ]},
-      bluestar: { name: "Bluestar", subtitle: "Completion Checklist", items: [
-        "Verify all lap splices, hooks, and dowels remain intact after remedial work.",
-        "Protect any rebar exposed during patching.",
-        "Ensure anchor holes near reinforcement are grouted."
-      ]},
-      floridaconcreteunlimited: { name: "Florida Concrete Unlimited", subtitle: "Completion Checklist", items: [
-        "Finish slab/ramp surfaces uniformly; no dips or defects.",
-        "Meet FF/FL or equivalent finish tolerances.",
-        "Finish slab edges, joints, recesses clean and accurate.",
-        "Verify drainage; no ponding.",
-        "Repair minor finish defects (bugholes, chips, small spalls).",
-        "Repair damages related to finishing",
-        "Clean finished surfaces; remove slurry and debris.",
-        "Repair honeycombs related to scope"
-      ]}
+    // Put your logo in the repo at: /assets/logo.png
+    // IMPORTANT: a missing/cross-origin logo can taint canvas and make PDF blank.
+    // This script auto-falls back to "no logo" if it can't load.
+    const PDF_LOGO_SRC = "assets/logo.png";
+
+    const AGENDA = {
+      title: "One Liberty Meeting Agenda",
+      time: "9:00 AM",
+      date: "01/23/2026",
+      sections: [
+        {
+          id: "landing",
+          navTitle: "Start",
+          navSub: "Launch meeting",
+          title: "ONE LIBERTY",
+          lead: "Lightspeed • Meeting Agenda",
+          blocks: []
+        },
+
+        {
+          id: "overview",
+          navTitle: "Overview",
+          navSub: "Meeting title, time, and section list",
+          title: "Agenda Overview",
+          lead: "Professional, section-by-section agenda for One Liberty coordination.",
+          blocks: [
+            { heading: "Meeting Details", bullets: [
+              "Meeting: One Liberty Meeting Agenda",
+              "Time: 9:00 AM",
+              "Date: 01/23/2026"
+            ]},
+            { heading: "Sections", bullets: [
+              "1. Safety",
+              "2. Specialty Work",
+              "3. Equipment Coordination",
+              "4. All Access Scopes",
+              "5. Special Projects",
+              "6. Builds"
+            ]}
+          ]
+        },
+
+        {
+          id: "safety",
+          navTitle: "1. Safety",
+          navSub: "Awareness, risks, incidents",
+          title: "1. Safety",
+          lead: "General safety awareness, current field risks and mitigations, and any incidents / near misses.",
+          blocks: [
+            { heading: "Safety", bullets: [
+              "General safety awareness",
+              "Current field risks and mitigations",
+              "Any incidents, near misses, or updates"
+            ]}
+          ]
+        },
+
+        {
+          id: "specialty-work",
+          navTitle: "2. Specialty Work",
+          navSub: "Field updates, pours, contract admin, close-out",
+          title: "2. Specialty Work",
+          lead: "Field status and sequencing constraints, action-required items, and contract admin updates.",
+          blocks: [
+            { heading: "Field Updates", bullets: [] },
+
+            { heading: "Pours", bullets: [
+              "Status, sequencing, and constraints"
+            ]},
+
+            { heading: "Stair 2 Floor Landing — Action Required", bullets: [
+              "Outstanding items",
+              "Responsibility and next steps"
+            ]},
+
+            { heading: "Contract Administration", bullets: [] },
+
+            { heading: "Change Order Status", bullets: [
+              "Pricing NF1118",
+              "Smith Premium Time for Tie Beam",
+              "Recent ticket work for BS",
+              "GProulx delays affecting A1L7 and A2L7",
+              "Potential grading scope add for ASD-013"
+            ]},
+
+            { heading: "Close-Out Activities", bullets: [] },
+
+            { heading: "Completion List / Floor Turnover Plan", bullets: [
+              "Level 2 – Complete 2/2",
+              "Level 3 – Complete 2/23",
+              "Level 4 – Complete 3/16"
+            ]},
+
+            { heading: "Needs From Suffolk", bullets: [
+              "Building 7 slab doweling at South Stair"
+            ]}
+          ]
+        },
+
+        {
+          id: "equipment",
+          navTitle: "3. Equipment Coordination",
+          navSub: "Tower cranes, inspections, TC1/TC2, hoist",
+          title: "3. Equipment Coordination",
+          lead: "Tower crane and hoist milestones, inspection cadence, repair windows, and dismantle dates.",
+          blocks: [
+            { heading: "Tower Cranes — Monthly Inspections", bullets: [
+              "January: 1/27"
+            ]},
+
+            { heading: "TC1", bullets: [
+              "Repair: 1/27 PM",
+              "Tie-in embed needed before 3/26",
+              "Jump 2: 3/28",
+              "Jump 3: 6/6",
+              "Dismantle: 9/9"
+            ]},
+
+            { heading: "TC2", bullets: [
+              "Tie-in embed needed before 1/29",
+              "Dismantle: 8/1"
+            ]},
+
+            { heading: "Hoist", bullets: [
+              "Jump 1: 2/23",
+              "Jump 2: 4/25",
+              "Jump 3: 6/13",
+              "Dismantle: 10/1?"
+            ]}
+          ]
+        },
+
+        {
+          id: "all-access",
+          navTitle: "4. All Access Scopes",
+          navSub: "Netting, overhead protection, stair tower, Rapid EPS",
+          title: "4. All Access Scopes",
+          lead: "All-access scope coordination and scheduled dates for supporting systems.",
+          blocks: [
+            { heading: "Netting", bullets: [
+              "Jump on North, East & West: 2/23",
+              "South Jump: 3/23"
+            ]},
+
+            { heading: "Overhead Protection", bullets: [
+              "Status & outstanding needs"
+            ]},
+
+            { heading: "B7 Stair Tower", bullets: [
+              "Progress / coordination requirements"
+            ]},
+
+            { heading: "Rapid EPS — Scheduled Dates", bullets: [
+              "1/22",
+              "2/18",
+              "3/11",
+              "4/1",
+              "5/1",
+              "6/1"
+            ]}
+          ]
+        },
+
+        {
+          id: "special-projects",
+          navTitle: "5. Special Projects",
+          navSub: "DFH, award progress, submittals, MRF, accessories",
+          title: "5. Special Projects",
+          lead: "Special project scope alignment, award progress, and installer/accessory coordination.",
+          blocks: [
+            { heading: "Scopes", bullets: [
+              "DFH",
+              "Contract Award Progress",
+              "Submittals",
+              "Suffolk MRF",
+              "Priority frames for Building 7 due 2/16"
+            ]},
+
+            { heading: "Installer Coordination", bullets: [
+              "Pending confirmation"
+            ]},
+
+            { heading: "Accessories", bullets: [
+              "Stair Nosings",
+              "Additional scope items (TBD)"
+            ]}
+          ]
+        },
+
+        {
+          id: "builds",
+          navTitle: "6. Builds",
+          navSub: "Suffolk manpower, headcount, schedule needs",
+          title: "6. Builds",
+          lead: "Suffolk manpower status and labor planning against pour schedule / critical path.",
+          blocks: [
+            { heading: "Suffolk Manpower", bullets: [
+              "Current headcount",
+              "Upcoming needs based on pour schedule / critical path",
+              "Labor adjustments for specialty scopes"
+            ]}
+          ]
+        }
+      ]
     };
 
-    /***********************
-     * STATE + ELEMENTS
-     ***********************/
-    // IMPORTANT: bumped version to force all browsers to load the new defaults
-    const KEY_PREFIX = "lightspeed_checklist_v2:";
+    const navEl = document.getElementById("nav");
+    const contentEl = document.getElementById("content");
+    const heroTitle = document.getElementById("heroTitle");
+    const timeChip = document.getElementById("timeChip");
+    const dateChip = document.getElementById("dateChip");
+    const sectionChip = document.getElementById("sectionChip");
 
-    const landing = document.getElementById("landing");
-    const checklistView = document.getElementById("checklistView");
-    const listEl = document.getElementById("list");
+    const homeBtn = document.getElementById("homeBtn");
+    const copyLinkBtn = document.getElementById("copyLinkBtn");
+    const pdfSectionBtn = document.getElementById("pdfSectionBtn");
+    const pdfAllBtn = document.getElementById("pdfAllBtn");
 
-    const companyTitleEl = document.getElementById("companyTitle");
-    const companySubEl = document.getElementById("companySub");
-    const barFill = document.getElementById("barFill");
-    const progressBadge = document.getElementById("progressBadge");
-    const progressPct = document.getElementById("progressPct");
-
-    const backBtn = document.getElementById("backBtn");
-    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-    const markAllBtn = document.getElementById("markAllBtn");
-    const resetChecksBtn = document.getElementById("resetChecksBtn");
-    const resetAllBtn = document.getElementById("resetAllBtn");
-    const newItemInput = document.getElementById("newItemInput");
-    const addItemBtn = document.getElementById("addItemBtn");
-
-    let activeCompanyId = null;
-    let activeState = null;
-
-    function setLandingCentered(isCentered){
-      document.body.classList.toggle("landing-center", isCentered);
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    function storageKey(companyId){ return KEY_PREFIX + companyId; }
-    function loadCompanyState(companyId){
-      const raw = localStorage.getItem(storageKey(companyId));
-      if (!raw) return null;
-      try { return JSON.parse(raw); } catch { return null; }
+    function setRoute(id){ window.location.hash = `s=${encodeURIComponent(id)}`; }
+    function getRoute(){
+      const raw = window.location.hash.replace("#","").trim();
+      const p = new URLSearchParams(raw);
+      return p.get("s") || "landing";
     }
-    function saveCompanyState(companyId, state){
-      localStorage.setItem(storageKey(companyId), JSON.stringify(state));
+    function findSection(id){
+      return AGENDA.sections.find(s => s.id === id) || AGENDA.sections[0];
     }
-    function cryptoRandomId(seed){
-      try{
-        const arr = new Uint32Array(2);
-        crypto.getRandomValues(arr);
-        return seed + "_" + arr[0].toString(16) + arr[1].toString(16);
-      }catch{
-        return seed + "_" + Math.random().toString(16).slice(2);
+
+    function renderNav(activeId){
+      navEl.innerHTML = "";
+      if (activeId === "landing"){
+        navEl.style.display = "none";
+        return;
+      }
+      navEl.style.display = "flex";
+
+      for (const s of AGENDA.sections){
+        if (s.id === "landing") continue;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "navItem" + (s.id === activeId ? " active" : "");
+        b.textContent = s.navTitle;
+        b.addEventListener("click", () => setRoute(s.id));
+        navEl.appendChild(b);
       }
     }
-    function makeDefaultState(companyId){
-      const base = DEFAULTS[companyId];
-      return {
-        companyId,
-        items: base.items.map((text, idx) => ({
-          id: cryptoRandomId(companyId + "_" + idx),
-          text,
-          done: false
-        }))
-      };
+
+    function renderContent(section){
+      heroTitle.textContent = AGENDA.title;
+      timeChip.textContent = AGENDA.time;
+      dateChip.textContent = AGENDA.date;
+      sectionChip.textContent = section.id === "landing" ? "Start" : section.navTitle;
+
+      if (section.id === "landing"){
+        contentEl.innerHTML = `
+          <div class="landing">
+            <h2 class="landingTitle">ONE LIBERTY</h2>
+            <div class="landingSub">LIGHTSPEED • MEETING AGENDA • ${escapeHtml(AGENDA.time)} • ${escapeHtml(AGENDA.date)}</div>
+            <button class="startBtn" id="startMeetingBtn">Start Meeting</button>
+          </div>
+        `;
+        document.getElementById("startMeetingBtn").addEventListener("click", () => setRoute("overview"));
+        return;
+      }
+
+      const blocksHtml = (section.blocks || []).map(b => {
+        const list = (b.bullets && b.bullets.length)
+          ? `<ul class="list">${b.bullets.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`
+          : `<div class="emptyNote">(Discussion / updates)</div>`;
+        return `<div class="block"><h3>${escapeHtml(b.heading)}</h3>${list}</div>`;
+      }).join("");
+
+      contentEl.innerHTML = `
+        <h2 class="sectionTitle">${escapeHtml(section.title)}</h2>
+        <p class="sectionLead">${escapeHtml(section.lead || "")}</p>
+        ${blocksHtml}
+      `;
     }
 
-    /***********************
-     * PHOTO STORAGE (IndexedDB)
-     * Multi-photo per item: store array of {id, dataUrl, ts}
-     ***********************/
-    const DB_NAME = "lightspeed_photos_db";
-    const DB_STORE = "photos";
-
-    function openPhotoDB(){
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 2);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains(DB_STORE)){
-            db.createObjectStore(DB_STORE);
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
+    function render(){
+      const id = getRoute();
+      const section = findSection(id);
+      renderNav(section.id);
+      renderContent(section);
     }
 
-    function photoKey(companyId, itemId){
-      return `photos:${companyId}:${itemId}`;
-    }
+    window.addEventListener("hashchange", render);
+    if (!window.location.hash) setRoute("landing");
+    render();
 
-    async function getPhotos(key){
-      const db = await openPhotoDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, "readonly");
-        const req = tx.objectStore(DB_STORE).get(key);
-        req.onsuccess = () => {
-          const v = req.result;
-          resolve(Array.isArray(v) ? v : []);
-        };
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function setPhotos(key, arr){
-      const db = await openPhotoDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, "readwrite");
-        tx.objectStore(DB_STORE).put(arr, key);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function addPhoto(companyId, itemId, dataUrl){
-      const key = photoKey(companyId, itemId);
-      const arr = await getPhotos(key);
-      const newPhoto = {
-        id: cryptoRandomId("p"),
-        dataUrl,
-        ts: Date.now()
-      };
-      arr.push(newPhoto);
-      await setPhotos(key, arr);
-      return newPhoto;
-    }
-
-    async function removePhotoById(companyId, itemId, photoId){
-      const key = photoKey(companyId, itemId);
-      const arr = await getPhotos(key);
-      const next = arr.filter(p => p && p.id !== photoId);
-      await setPhotos(key, next);
-      return next;
-    }
-
-    async function deleteAllPhotos(companyId, itemId){
-      const key = photoKey(companyId, itemId);
-      await setPhotos(key, []);
-    }
-
-    function fileToDataUrl(file){
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    /***********************
-     * MODAL PREVIEW
-     ***********************/
-    const photoModal = document.getElementById("photoModal");
-    const photoModalImg = document.getElementById("photoModalImg");
-    const photoModalClose = document.getElementById("photoModalClose");
-
-    function openPhotoModal(src){
-      photoModalImg.src = src;
-      photoModal.classList.add("open");
-    }
-    function closePhotoModal(){
-      photoModal.classList.remove("open");
-      photoModalImg.src = "";
-    }
-    photoModalClose.addEventListener("click", closePhotoModal);
-    photoModal.addEventListener("click", (e) => {
-      if (e.target === photoModal) closePhotoModal();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closePhotoModal();
+    homeBtn.addEventListener("click", () => setRoute("landing"));
+    homeBtn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") setRoute("landing");
     });
 
-    /***********************
-     * ROUTING
-     ***********************/
-    function goHome(){
-      window.location.hash = "";
-      activeCompanyId = null;
-      activeState = null;
+    copyLinkBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(window.location.href);
+        copyLinkBtn.textContent = "Copied";
+        setTimeout(() => copyLinkBtn.textContent = "Copy Link", 900);
+      }catch{
+        window.prompt("Copy this link:", window.location.href);
+      }
+    });
 
-      checklistView.classList.add("hide");
-      landing.classList.remove("hide");
-
-      setLandingCentered(true);
+    // ===========================
+    // PDF (FIXED): not empty + one section per page + full agenda
+    // ===========================
+    function loadImageSafe(src){
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve({ ok: true, src });
+        img.onerror = () => resolve({ ok: false, src });
+        img.src = src;
+      });
     }
 
-    function openCompany(companyId){
-      if (!DEFAULTS[companyId]) return;
+    function buildPdfRoot(sections, showLogo){
+      const root = document.createElement("div");
+      root.className = "pdfRoot";
 
-      activeCompanyId = companyId;
+      sections.forEach(sec => {
+        const page = document.createElement("div");
+        page.className = "pdfPage";
 
-      // With v2 prefix, this will load new defaults for everyone
-      activeState = loadCompanyState(companyId) ?? makeDefaultState(companyId);
-      saveCompanyState(companyId, activeState);
+        const blocks = (sec.blocks || []).map(b => {
+          const items = (b.bullets || []).map(i => `<li>${escapeHtml(i)}</li>`).join("");
+          const list = (b.bullets && b.bullets.length)
+            ? `<ul>${items}</ul>`
+            : `<div style="color:#5b6a82; font-size:12px; line-height:1.55;">(Discussion / updates)</div>`;
+          return `<div class="pdfBlock"><h3>${escapeHtml(b.heading)}</h3>${list}</div>`;
+        }).join("");
 
-      landing.classList.add("hide");
-      checklistView.classList.remove("hide");
+        const logoHtml = showLogo
+          ? `<img class="pdfLogo" src="${PDF_LOGO_SRC}" alt="Company Logo" />`
+          : `<div class="pdfLogo" style="display:flex;align-items:center;justify-content:center;color:#6a7890;font:700 10px var(--mono);">LOGO</div>`;
 
-      setLandingCentered(false);
-
-      companyTitleEl.textContent = DEFAULTS[companyId].name + " — Completion List";
-      companySubEl.textContent = DEFAULTS[companyId].subtitle;
-
-      render();
-    }
-
-    function onHashChange(){
-      const hash = window.location.hash.replace("#", "").trim();
-      if (!hash){ goHome(); return; }
-
-      const params = new URLSearchParams(hash);
-      const companyId = params.get("company");
-      if (companyId && DEFAULTS[companyId]) openCompany(companyId);
-      else goHome();
-    }
-    window.addEventListener("hashchange", onHashChange);
-
-    /***********************
-     * RENDER
-     ***********************/
-    async function render(){
-      if (!activeState) return;
-
-      listEl.innerHTML = "";
-
-      for (const item of activeState.items){
-        const row = document.createElement("div");
-        row.className = "item" + (item.done ? " completed" : "");
-
-        const check = document.createElement("div");
-        check.className = "check";
-        check.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M16.5 6.5L8.25 14.75L3.5 10" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        page.innerHTML = `
+          <div class="pdfHeader">
+            <div class="pdfHeaderLeft">
+              ${logoHtml}
+              <div class="pdfHeaderText">
+                <p class="pdfDocTitle">${escapeHtml(AGENDA.title)}</p>
+                <p class="pdfSectionTitle">${escapeHtml(sec.title)}</p>
+              </div>
+            </div>
+            <div class="pdfHeaderRight">
+              <div>${escapeHtml(AGENDA.time)} • ${escapeHtml(AGENDA.date)}</div>
+              <div style="color:#5b6a82;">Lightspeed • One Liberty</div>
+            </div>
+          </div>
+          <div class="pdfDivider"></div>
+          <p class="pdfLead">${escapeHtml(sec.lead || "")}</p>
+          ${blocks}
         `;
 
-        const main = document.createElement("div");
-        main.className = "itemMain";
+        root.appendChild(page);
+      });
 
-        const p = document.createElement("p");
-        p.className = "itemText";
-        p.textContent = item.text;
-        main.appendChild(p);
+      return root;
+    }
 
-        const photoRow = document.createElement("div");
-        photoRow.className = "photoRow";
-        main.appendChild(photoRow);
+    async function exportPdf({ sectionOnly }){
+      // Export all agenda sections (exclude landing)
+      const exportable = AGENDA.sections.filter(s => s.id !== "landing");
+      const current = findSection(getRoute());
 
-        const photos = await getPhotos(photoKey(activeCompanyId, item.id));
-        for (const ph of photos){
-          const wrap = document.createElement("div");
-          wrap.className = "thumbWrap";
+      const sections = sectionOnly
+        ? (current.id === "landing" ? [exportable[0]] : [current])
+        : exportable;
 
-          const img = document.createElement("img");
-          img.className = "thumb";
-          img.src = ph.dataUrl;
-          img.alt = "Attached photo";
-          img.addEventListener("click", (e) => {
-            e.stopPropagation();
-            openPhotoModal(img.src);
-          });
+      // Fix #1 for empty PDF:
+      // If the logo fails to load (CORS / missing file), html2canvas can produce blank output.
+      // We detect it and auto-fallback to a non-image logo box.
+      const logoCheck = await loadImageSafe(PDF_LOGO_SRC);
+      const showLogo = logoCheck.ok;
 
-          const del = document.createElement("button");
-          del.className = "thumbDel";
-          del.type = "button";
-          del.title = "Remove photo";
-          del.textContent = "×";
-          del.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            await removePhotoById(activeCompanyId, item.id, ph.id);
-            await render();
-          });
+      // Build dedicated PDF DOM (prevents page overlap)
+      const pdfRoot = buildPdfRoot(sections, showLogo);
 
-          wrap.appendChild(img);
-          wrap.appendChild(del);
-          photoRow.appendChild(wrap);
-        }
+      // Attach off-screen but renderable
+      pdfRoot.style.position = "fixed";
+      pdfRoot.style.left = "0";
+      pdfRoot.style.top = "0";
+      pdfRoot.style.opacity = "0";
+      pdfRoot.style.pointerEvents = "none";
+      document.body.appendChild(pdfRoot);
 
-        const actions = document.createElement("div");
-        actions.className = "itemActions";
+      // Force layout
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-        const toggleBtn = document.createElement("button");
-        toggleBtn.className = "mini";
-        toggleBtn.textContent = item.done ? "Mark not completed" : "Mark completed";
-        toggleBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleItem(item.id); });
+      const fileName = sectionOnly ? "one-liberty-section.pdf" : "one-liberty-agenda.pdf";
 
-        const photoBtn = document.createElement("button");
-        photoBtn.className = "mini photo";
-        photoBtn.textContent = "📷 Add photo";
+      const opt = {
+        margin: 0,
+        filename: fileName,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false
+        },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy", "avoid-all"] }
+      };
 
-        const removeAllPhotosBtn = document.createElement("button");
-        removeAllPhotosBtn.className = "mini remove";
-        removeAllPhotosBtn.textContent = "Remove all photos";
-        removeAllPhotosBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          await deleteAllPhotos(activeCompanyId, item.id);
-          await render();
-        });
-
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "mini remove";
-        removeBtn.textContent = "Remove item";
-        removeBtn.addEventListener("click", (e) => { e.stopPropagation(); removeItem(item.id); });
-
-        const fileInput = document.createElement("input");
-        fileInput.type = "file";
-        fileInput.accept = "image/*";
-        fileInput.capture = "environment";
-        fileInput.style.display = "none";
-
-        photoBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          fileInput.click();
-        });
-
-        fileInput.addEventListener("change", async () => {
-          const file = fileInput.files?.[0];
-          if (!file) return;
-
-          const tempUrl = URL.createObjectURL(file);
-
-          const tempWrap = document.createElement("div");
-          tempWrap.className = "thumbWrap";
-
-          const tempImg = document.createElement("img");
-          tempImg.className = "thumb";
-          tempImg.src = tempUrl;
-          tempImg.alt = "Attached photo";
-          tempImg.addEventListener("click", (e) => {
-            e.stopPropagation();
-            openPhotoModal(tempImg.src);
-          });
-
-          const tempDel = document.createElement("button");
-          tempDel.className = "thumbDel";
-          tempDel.type = "button";
-          tempDel.title = "Remove photo";
-          tempDel.textContent = "×";
-          tempDel.addEventListener("click", (e) => {
-            e.stopPropagation();
-            tempWrap.remove();
-            URL.revokeObjectURL(tempUrl);
-          });
-
-          tempWrap.appendChild(tempImg);
-          tempWrap.appendChild(tempDel);
-          photoRow.appendChild(tempWrap);
-
-          const dataUrl = await fileToDataUrl(file);
-          await addPhoto(activeCompanyId, item.id, dataUrl);
-
-          URL.revokeObjectURL(tempUrl);
-          fileInput.value = "";
-          await render();
-        });
-
-        actions.appendChild(toggleBtn);
-        actions.appendChild(photoBtn);
-        actions.appendChild(removeAllPhotosBtn);
-        actions.appendChild(removeBtn);
-        actions.appendChild(fileInput);
-
-        check.addEventListener("click", (e) => { e.stopPropagation(); toggleItem(item.id); });
-        main.addEventListener("click", () => toggleItem(item.id));
-
-        row.appendChild(check);
-        row.appendChild(main);
-        row.appendChild(actions);
-
-        listEl.appendChild(row);
+      try{
+        await html2pdf().set(opt).from(pdfRoot).save();
+      } finally {
+        document.body.removeChild(pdfRoot);
       }
-
-      updateProgress();
     }
 
-    function updateProgress(){
-      const total = activeState.items.length;
-      const done = activeState.items.reduce((acc, it) => acc + (it.done ? 1 : 0), 0);
-      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-
-      barFill.style.width = pct + "%";
-      progressBadge.textContent = `${done} / ${total}`;
-      progressPct.textContent = `${pct}% complete`;
-    }
-
-    /***********************
-     * ACTIONS
-     ***********************/
-    function toggleItem(id){
-      const idx = activeState.items.findIndex(i => i.id === id);
-      if (idx === -1) return;
-      activeState.items[idx].done = !activeState.items[idx].done;
-      saveCompanyState(activeCompanyId, activeState);
-      render();
-    }
-
-    function removeItem(id){
-      const idx = activeState.items.findIndex(i => i.id === id);
-      if (idx === -1) return;
-
-      deleteAllPhotos(activeCompanyId, id).catch(() => {});
-      activeState.items.splice(idx, 1);
-      saveCompanyState(activeCompanyId, activeState);
-      render();
-    }
-
-    function addItem(text){
-      const t = (text ?? "").trim();
-      if (!t) return;
-
-      activeState.items.push({
-        id: cryptoRandomId(activeCompanyId + "_custom"),
-        text: t,
-        done: false
-      });
-      saveCompanyState(activeCompanyId, activeState);
-      render();
-    }
-
-    function markAllComplete(){
-      activeState.items.forEach(i => i.done = true);
-      saveCompanyState(activeCompanyId, activeState);
-      render();
-    }
-
-    function resetChecks(){
-      activeState.items.forEach(i => i.done = false);
-      saveCompanyState(activeCompanyId, activeState);
-      render();
-    }
-
-    function resetAll(){
-      Promise.all(activeState.items.map(it => deleteAllPhotos(activeCompanyId, it.id).catch(() => {})))
-        .finally(() => {
-          activeState = makeDefaultState(activeCompanyId);
-          saveCompanyState(activeCompanyId, activeState);
-          render();
-        });
-    }
-
-    /***********************
-     * PDF EXPORT (Full-size, includes ALL photos)
-     ***********************/
-    function pad2(n){ return String(n).padStart(2, "0"); }
-    function formatDateTime(d){
-      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-    }
-    function safeFileStamp(d){
-      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
-    }
-
-    async function downloadPdfReport(){
-      if (!activeCompanyId || !activeState) return;
-
-      const now = new Date();
-      const companyName = DEFAULTS[activeCompanyId].name;
-      const total = activeState.items.length;
-      const done = activeState.items.reduce((acc, it) => acc + (it.done ? 1 : 0), 0);
-      const pct = total === 0 ? 0 : Math.round((done/total)*100);
-
-      const sandbox = document.createElement("div");
-      sandbox.className = "pdfSandbox pdfMode";
-
-      sandbox.innerHTML = `
-        <div class="pdfHeader">
-          <h1>Lightspeed Project Completion Report</h1>
-          <p><strong>Company:</strong> ${companyName} &nbsp; | &nbsp; <strong>Date:</strong> ${formatDateTime(now)} &nbsp; | &nbsp; <strong>Progress:</strong> ${done}/${total} (${pct}%)</p>
-        </div>
-      `;
-
-      const listClone = listEl.cloneNode(true);
-      sandbox.appendChild(listClone);
-
-      document.body.appendChild(sandbox);
-
-      const canvas = await html2canvas(sandbox, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true
-      });
-
-      sandbox.remove();
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "pt",
-        format: "a4"
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const margin = 24;
-      const usableWidth = pageWidth - margin * 2;
-
-      const imgWidth = usableWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let y = margin;
-
-      pdf.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - margin * 2);
-
-      while (heightLeft > 0) {
-        pdf.addPage();
-        y = margin - (imgHeight - heightLeft);
-        pdf.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
-        heightLeft -= (pageHeight - margin * 2);
-      }
-
-      const fileName = `Lightspeed_Completion_Report_${companyName.replace(/\s+/g,"_")}_${safeFileStamp(now)}.pdf`;
-      pdf.save(fileName);
-    }
-
-    /***********************
-     * EVENTS
-     ***********************/
-    document.querySelectorAll(".companyBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const companyId = btn.getAttribute("data-company");
-        window.location.hash = `company=${encodeURIComponent(companyId)}`;
-      });
-    });
-
-    backBtn.addEventListener("click", goHome);
-    downloadPdfBtn.addEventListener("click", downloadPdfReport);
-    markAllBtn.addEventListener("click", markAllComplete);
-    resetChecksBtn.addEventListener("click", resetChecks);
-    resetAllBtn.addEventListener("click", resetAll);
-
-    addItemBtn.addEventListener("click", () => {
-      addItem(newItemInput.value);
-      newItemInput.value = "";
-      newItemInput.focus();
-    });
-
-    newItemInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter"){
-        e.preventDefault();
-        addItem(newItemInput.value);
-        newItemInput.value = "";
-      }
-    });
-
-    // Initial route
-    onHashChange();
+    pdfSectionBtn.addEventListener("click", () => exportPdf({ sectionOnly: true }));
+    pdfAllBtn.addEventListener("click", () => exportPdf({ sectionOnly: false }));
   </script>
 </body>
 </html>
