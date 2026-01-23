@@ -42,7 +42,7 @@
       overflow-x:hidden;
     }
 
-    /* ===== Background: One Liberty motion system ===== */
+    /* ===== Background ===== */
     .bg{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow:hidden; }
     .bgWord{
       position:absolute; left:50%; top:52%;
@@ -62,7 +62,6 @@
 
     /* ===== Layout ===== */
     .wrap{ position:relative; z-index: 1; width:min(1200px,100%); margin:0 auto; padding:26px 16px 80px; }
-
     .topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; user-select:none; }
 
     .brand{
@@ -202,16 +201,14 @@
       font-family: var(--sans);
     }
 
+    /* ONE SECTION PER PAGE */
     .pdfPage{
       width: 8.5in;
       min-height: 11in;
       padding: 0.6in;
       background:#fff;
-
-      /* one section per page */
       page-break-after: always;
       break-after: page;
-
       overflow: hidden;
     }
     .pdfPage:last-child{ page-break-after: auto; break-after: auto; }
@@ -225,14 +222,7 @@
       margin-bottom: 14px;
       border-bottom: 2px solid #e6e9f2;
     }
-
-    .pdfHeaderLeft{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width: 0;
-    }
-
+    .pdfHeaderLeft{ display:flex; align-items:center; gap: 12px; min-width: 0; }
     .pdfLogo{
       width: 56px;
       height: 56px;
@@ -242,13 +232,11 @@
       background:#fff;
       flex: 0 0 auto;
     }
-
     .pdfHeaderText{ display:flex; flex-direction:column; gap: 4px; min-width: 0; }
     .pdfDocTitle{
       font-size: 18px;
       font-weight: 900;
       color: var(--navy);
-      letter-spacing: -.01em;
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
@@ -267,7 +255,6 @@
       text-overflow: ellipsis;
       max-width: 5.2in;
     }
-
     .pdfHeaderRight{
       text-align:right;
       font-family: var(--mono);
@@ -276,7 +263,6 @@
       line-height: 1.45;
       white-space: nowrap;
     }
-
     .pdfDivider{
       height: 4px;
       width: 100%;
@@ -284,14 +270,12 @@
       background: linear-gradient(90deg, var(--navy), var(--red), var(--navy));
       margin: 0 0 14px;
     }
-
     .pdfLead{
       font-size: 12px;
       color: #2a3a54;
       margin: 0 0 14px;
       line-height: 1.55;
     }
-
     .pdfBlock{
       border: 1px solid #e9edf6;
       border-radius: 14px;
@@ -363,8 +347,7 @@
 
   <script>
     // Put your logo in the repo at: /assets/logo.png
-    // IMPORTANT: a missing/cross-origin logo can taint canvas and make PDF blank.
-    // This script auto-falls back to "no logo" if it can't load.
+    // If the logo is missing, the PDF still exports (it will show a placeholder box).
     const PDF_LOGO_SRC = "assets/logo.png";
 
     const AGENDA = {
@@ -372,14 +355,7 @@
       time: "9:00 AM",
       date: "01/23/2026",
       sections: [
-        {
-          id: "landing",
-          navTitle: "Start",
-          navSub: "Launch meeting",
-          title: "ONE LIBERTY",
-          lead: "Lightspeed • Meeting Agenda",
-          blocks: []
-        },
+        { id: "landing", navTitle: "Start", navSub: "Launch meeting", title: "ONE LIBERTY", lead: "Lightspeed • Meeting Agenda", blocks: [] },
 
         {
           id: "overview",
@@ -388,19 +364,8 @@
           title: "Agenda Overview",
           lead: "Professional, section-by-section agenda for One Liberty coordination.",
           blocks: [
-            { heading: "Meeting Details", bullets: [
-              "Meeting: One Liberty Meeting Agenda",
-              "Time: 9:00 AM",
-              "Date: 01/23/2026"
-            ]},
-            { heading: "Sections", bullets: [
-              "1. Safety",
-              "2. Specialty Work",
-              "3. Equipment Coordination",
-              "4. All Access Scopes",
-              "5. Special Projects",
-              "6. Builds"
-            ]}
+            { heading: "Meeting Details", bullets: ["Meeting: One Liberty Meeting Agenda","Time: 9:00 AM","Date: 01/23/2026"] },
+            { heading: "Sections", bullets: ["1. Safety","2. Specialty Work","3. Equipment Coordination","4. All Access Scopes","5. Special Projects","6. Builds"] }
           ]
         },
 
@@ -411,11 +376,7 @@
           title: "1. Safety",
           lead: "General safety awareness, current field risks and mitigations, and any incidents / near misses.",
           blocks: [
-            { heading: "Safety", bullets: [
-              "General safety awareness",
-              "Current field risks and mitigations",
-              "Any incidents, near misses, or updates"
-            ]}
+            { heading: "Safety", bullets: ["General safety awareness","Current field risks and mitigations","Any incidents, near misses, or updates"] }
           ]
         },
 
@@ -427,37 +388,13 @@
           lead: "Field status and sequencing constraints, action-required items, and contract admin updates.",
           blocks: [
             { heading: "Field Updates", bullets: [] },
-
-            { heading: "Pours", bullets: [
-              "Status, sequencing, and constraints"
-            ]},
-
-            { heading: "Stair 2 Floor Landing — Action Required", bullets: [
-              "Outstanding items",
-              "Responsibility and next steps"
-            ]},
-
+            { heading: "Pours", bullets: ["Status, sequencing, and constraints"] },
+            { heading: "Stair 2 Floor Landing — Action Required", bullets: ["Outstanding items","Responsibility and next steps"] },
             { heading: "Contract Administration", bullets: [] },
-
-            { heading: "Change Order Status", bullets: [
-              "Pricing NF1118",
-              "Smith Premium Time for Tie Beam",
-              "Recent ticket work for BS",
-              "GProulx delays affecting A1L7 and A2L7",
-              "Potential grading scope add for ASD-013"
-            ]},
-
+            { heading: "Change Order Status", bullets: ["Pricing NF1118","Smith Premium Time for Tie Beam","Recent ticket work for BS","GProulx delays affecting A1L7 and A2L7","Potential grading scope add for ASD-013"] },
             { heading: "Close-Out Activities", bullets: [] },
-
-            { heading: "Completion List / Floor Turnover Plan", bullets: [
-              "Level 2 – Complete 2/2",
-              "Level 3 – Complete 2/23",
-              "Level 4 – Complete 3/16"
-            ]},
-
-            { heading: "Needs From Suffolk", bullets: [
-              "Building 7 slab doweling at South Stair"
-            ]}
+            { heading: "Completion List / Floor Turnover Plan", bullets: ["Level 2 – Complete 2/2","Level 3 – Complete 2/23","Level 4 – Complete 3/16"] },
+            { heading: "Needs From Suffolk", bullets: ["Building 7 slab doweling at South Stair"] }
           ]
         },
 
@@ -468,29 +405,10 @@
           title: "3. Equipment Coordination",
           lead: "Tower crane and hoist milestones, inspection cadence, repair windows, and dismantle dates.",
           blocks: [
-            { heading: "Tower Cranes — Monthly Inspections", bullets: [
-              "January: 1/27"
-            ]},
-
-            { heading: "TC1", bullets: [
-              "Repair: 1/27 PM",
-              "Tie-in embed needed before 3/26",
-              "Jump 2: 3/28",
-              "Jump 3: 6/6",
-              "Dismantle: 9/9"
-            ]},
-
-            { heading: "TC2", bullets: [
-              "Tie-in embed needed before 1/29",
-              "Dismantle: 8/1"
-            ]},
-
-            { heading: "Hoist", bullets: [
-              "Jump 1: 2/23",
-              "Jump 2: 4/25",
-              "Jump 3: 6/13",
-              "Dismantle: 10/1?"
-            ]}
+            { heading: "Tower Cranes — Monthly Inspections", bullets: ["January: 1/27"] },
+            { heading: "TC1", bullets: ["Repair: 1/27 PM","Tie-in embed needed before 3/26","Jump 2: 3/28","Jump 3: 6/6","Dismantle: 9/9"] },
+            { heading: "TC2", bullets: ["Tie-in embed needed before 1/29","Dismantle: 8/1"] },
+            { heading: "Hoist", bullets: ["Jump 1: 2/23","Jump 2: 4/25","Jump 3: 6/13","Dismantle: 10/1?"] }
           ]
         },
 
@@ -501,27 +419,10 @@
           title: "4. All Access Scopes",
           lead: "All-access scope coordination and scheduled dates for supporting systems.",
           blocks: [
-            { heading: "Netting", bullets: [
-              "Jump on North, East & West: 2/23",
-              "South Jump: 3/23"
-            ]},
-
-            { heading: "Overhead Protection", bullets: [
-              "Status & outstanding needs"
-            ]},
-
-            { heading: "B7 Stair Tower", bullets: [
-              "Progress / coordination requirements"
-            ]},
-
-            { heading: "Rapid EPS — Scheduled Dates", bullets: [
-              "1/22",
-              "2/18",
-              "3/11",
-              "4/1",
-              "5/1",
-              "6/1"
-            ]}
+            { heading: "Netting", bullets: ["Jump on North, East & West: 2/23","South Jump: 3/23"] },
+            { heading: "Overhead Protection", bullets: ["Status & outstanding needs"] },
+            { heading: "B7 Stair Tower", bullets: ["Progress / coordination requirements"] },
+            { heading: "Rapid EPS — Scheduled Dates", bullets: ["1/22","2/18","3/11","4/1","5/1","6/1"] }
           ]
         },
 
@@ -532,22 +433,9 @@
           title: "5. Special Projects",
           lead: "Special project scope alignment, award progress, and installer/accessory coordination.",
           blocks: [
-            { heading: "Scopes", bullets: [
-              "DFH",
-              "Contract Award Progress",
-              "Submittals",
-              "Suffolk MRF",
-              "Priority frames for Building 7 due 2/16"
-            ]},
-
-            { heading: "Installer Coordination", bullets: [
-              "Pending confirmation"
-            ]},
-
-            { heading: "Accessories", bullets: [
-              "Stair Nosings",
-              "Additional scope items (TBD)"
-            ]}
+            { heading: "Scopes", bullets: ["DFH","Contract Award Progress","Submittals","Suffolk MRF","Priority frames for Building 7 due 2/16"] },
+            { heading: "Installer Coordination", bullets: ["Pending confirmation"] },
+            { heading: "Accessories", bullets: ["Stair Nosings","Additional scope items (TBD)"] }
           ]
         },
 
@@ -558,11 +446,7 @@
           title: "6. Builds",
           lead: "Suffolk manpower status and labor planning against pour schedule / critical path.",
           blocks: [
-            { heading: "Suffolk Manpower", bullets: [
-              "Current headcount",
-              "Upcoming needs based on pour schedule / critical path",
-              "Labor adjustments for specialty scopes"
-            ]}
+            { heading: "Suffolk Manpower", bullets: ["Current headcount","Upcoming needs based on pour schedule / critical path","Labor adjustments for specialty scopes"] }
           ]
         }
       ]
@@ -676,24 +560,24 @@
       }
     });
 
-    // ===========================
-    // PDF (FIXED): not empty + one section per page + full agenda
-    // ===========================
-    function loadImageSafe(src){
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => resolve({ ok: true, src });
-        img.onerror = () => resolve({ ok: false, src });
-        img.src = src;
-      });
+    /* ===========================
+       PDF (FIX): content was empty because the PDF DOM was made invisible (opacity:0).
+       html2canvas can render blank when the source is fully transparent.
+       We now position it FAR OFFSCREEN but KEEP IT VISIBLE (opacity:1).
+       Each section is its own .pdfPage => one page per section.
+    =========================== */
+
+    function createPdfLogoHtml(){
+      // Always return an <img>. If it fails to load, browser still lays out the page;
+      // html2canvas won't blank the whole doc anymore because we don't hide the root.
+      return `<img class="pdfLogo" src="${PDF_LOGO_SRC}" alt="Company Logo" />`;
     }
 
-    function buildPdfRoot(sections, showLogo){
+    function buildPdfRoot(sections){
       const root = document.createElement("div");
       root.className = "pdfRoot";
 
-      sections.forEach(sec => {
+      for (const sec of sections){
         const page = document.createElement("div");
         page.className = "pdfPage";
 
@@ -705,14 +589,10 @@
           return `<div class="pdfBlock"><h3>${escapeHtml(b.heading)}</h3>${list}</div>`;
         }).join("");
 
-        const logoHtml = showLogo
-          ? `<img class="pdfLogo" src="${PDF_LOGO_SRC}" alt="Company Logo" />`
-          : `<div class="pdfLogo" style="display:flex;align-items:center;justify-content:center;color:#6a7890;font:700 10px var(--mono);">LOGO</div>`;
-
         page.innerHTML = `
           <div class="pdfHeader">
             <div class="pdfHeaderLeft">
-              ${logoHtml}
+              ${createPdfLogoHtml()}
               <div class="pdfHeaderText">
                 <p class="pdfDocTitle">${escapeHtml(AGENDA.title)}</p>
                 <p class="pdfSectionTitle">${escapeHtml(sec.title)}</p>
@@ -729,38 +609,34 @@
         `;
 
         root.appendChild(page);
-      });
+      }
 
       return root;
     }
 
     async function exportPdf({ sectionOnly }){
-      // Export all agenda sections (exclude landing)
       const exportable = AGENDA.sections.filter(s => s.id !== "landing");
-      const current = findSection(getRoute());
 
+      // FULL AGENDA must always include all sections (one per page)
       const sections = sectionOnly
-        ? (current.id === "landing" ? [exportable[0]] : [current])
+        ? [findSection(getRoute())].filter(s => s.id !== "landing")
         : exportable;
 
-      // Fix #1 for empty PDF:
-      // If the logo fails to load (CORS / missing file), html2canvas can produce blank output.
-      // We detect it and auto-fallback to a non-image logo box.
-      const logoCheck = await loadImageSafe(PDF_LOGO_SRC);
-      const showLogo = logoCheck.ok;
+      // If user clicks section PDF while on landing, default to Overview
+      if (sectionOnly && sections.length === 0) sections.push(exportable[0]);
 
-      // Build dedicated PDF DOM (prevents page overlap)
-      const pdfRoot = buildPdfRoot(sections, showLogo);
+      const pdfRoot = buildPdfRoot(sections);
 
-      // Attach off-screen but renderable
+      // Attach offscreen but VISIBLE (do NOT set opacity:0)
       pdfRoot.style.position = "fixed";
-      pdfRoot.style.left = "0";
+      pdfRoot.style.left = "-100000px";
       pdfRoot.style.top = "0";
-      pdfRoot.style.opacity = "0";
+      pdfRoot.style.opacity = "1";
       pdfRoot.style.pointerEvents = "none";
+      pdfRoot.style.zIndex = "-1";
       document.body.appendChild(pdfRoot);
 
-      // Force layout
+      // Wait 2 frames so layout + fonts/images can resolve
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
       const fileName = sectionOnly ? "one-liberty-section.pdf" : "one-liberty-agenda.pdf";
@@ -774,10 +650,15 @@
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
-          logging: false
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: Math.ceil(8.5 * 96),   // 816 px
+          windowHeight: Math.ceil(11 * 96)    // 1056 px
         },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy", "avoid-all"] }
+        // Respect our .pdfPage page breaks
+        pagebreak: { mode: ["css", "legacy"] }
       };
 
       try{
